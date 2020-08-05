@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "execa": "^4.0.3",
+    "graphql": "^15.3.0",
+    "meow": "^7.0.1",
+    "mkdirp": "^1.0.4",
+    "resolve": "^1.17.0",
+    "walk-sync": "^2.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "fixturify-project": "^2.1.0",
+    "mocha": "^8.1.1"
+  },
+  "scripts": {
+    "test": "mocha tests/**/*-test.js",
+    "test:debug": "mocha debug tests/**/*-test.js"
+  }
+}
