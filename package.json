@@ -1,4 +1,6 @@
 {
+  "name": "graphql-fragment-import",
+  "version": "0.0.1",
   "dependencies": {
     "execa": "^4.0.3",
     "graphql": "^15.3.0",
