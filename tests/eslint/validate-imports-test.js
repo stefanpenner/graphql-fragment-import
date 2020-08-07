@@ -64,7 +64,7 @@ query foo {
     project.writeSync();
 
     tester = new RuleTester({
-      parser: `/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-graphql/eslint/parser`,
+      parser: require.resolve(`@eslint-ast/eslint-plugin-graphql/parser`),
       parserOptions : {
         filename: `${project.baseDir}/test-file.graphql`
       }
@@ -75,7 +75,7 @@ query foo {
     it(name, () => {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
-      tester.run(name, require('../../eslint/rules/validate-imports'), {
+      tester.run(name, require('../../eslint-plugin/rules/validate-imports'), {
         valid: [
           {
             code ,
@@ -91,7 +91,7 @@ query foo {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
 
-      tester.run(name, require('../../eslint/rules/validate-imports'), {
+      tester.run(name, require('../../eslint-plugin/rules/validate-imports'), {
         valid: [],
         invalid: [
           {

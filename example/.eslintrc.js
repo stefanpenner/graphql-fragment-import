@@ -3,9 +3,9 @@ module.exports = {
   overrides: [
     {
       files: '**/*.graphql',
-      parser: 'eslint-plugin-graphql/parser',
+      parser: '@eslint-ast/eslint-plugin-graphql/parser',
       plugins: [
-        'eslint-plugin-graphql',
+        '@eslint-ast/eslint-plugin-graphql',
       ],
 
       rules: {

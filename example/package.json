@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@eslint-ast/eslint-plugin-graphql": "link:/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-graphql/"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  }
+}

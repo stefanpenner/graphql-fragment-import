@@ -3,7 +3,7 @@
 const { expect } = require('chai');
 
 describe('parse-imports', function() {
-  const parseImports = require('../../eslint/parse-imports');
+  const parseImports = require('../../eslint-plugin/parse-imports');
   it('works', function() {
     expect(parseImports('')).to.eql([]);
     expect(parseImports('#import "_foo.graphql"')).to.deep.eql([

@@ -2,7 +2,6 @@
   "name": "graphql-fragment-import",
   "version": "0.0.1",
   "dependencies": {
-    "execa": "^4.0.3",
     "graphql": "^15.3.0",
     "meow": "^7.0.1",
     "mkdirp": "^1.0.4",
@@ -10,10 +9,12 @@
     "walk-sync": "^2.2.0"
   },
   "devDependencies": {
+    "execa": "^4.0.3",
     "chai": "^4.2.0",
     "eslint": "^7.6.0",
     "fixturify-project": "^2.1.0",
-    "mocha": "^8.1.1"
+    "mocha": "^8.1.1",
+    "@eslint-ast/eslint-plugin-graphql": "link:/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-graphql/"
   },
   "scripts": {
     "test": "mocha tests/**/*-test.js",

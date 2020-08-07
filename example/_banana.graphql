@@ -1,5 +1,4 @@
 fragment Banana on Fruit {
   id
   name
-
 }
