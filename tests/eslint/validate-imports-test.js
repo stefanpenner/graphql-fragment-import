@@ -48,6 +48,22 @@ query foo {
   }
 }`;
 
+      project.addDependency('some-dependency', '1.0.0', addon => {
+        addon.files['_fragment.graphql'] = `
+fragment Fragment on Fruit {
+  id
+} `;
+      });
+
+      project.files['with-node-modules-import.graphql'] = `
+#import './node_modules/some-dependency/_fragment.graphql'
+query foo {
+  bar {
+    ...Fragment
+  }
+}
+      `;
+
       project.files['complex.graphql'] = `
 #import './file-without-underscore.graphql'
 #import './_fragment.apple'
@@ -64,18 +80,15 @@ query foo {
     project.writeSync();
 
     tester = new RuleTester({
-      parser: require.resolve(`@eslint-ast/eslint-plugin-graphql/parser`),
-      parserOptions : {
-        filename: `${project.baseDir}/test-file.graphql`
-      }
+      parser: require.resolve(`@eslint-ast/eslint-plugin-graphql/parser`)
     });
   })
 
-  function valid(name, _filename) {
-    it(name, () => {
+  function valid(_filename) {
+    it(` lints ${_filename} as valid`, () => {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
-      tester.run(name, require('../../eslint-plugin/rules/validate-imports'), {
+      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
         valid: [
           {
             code ,
@@ -86,12 +99,12 @@ query foo {
     })
   }
 
-  function invalid(name, _filename, errors) {
-    it(name, () => {
+  function invalid(_filename, errors) {
+    it(`lints ${_filename} as invalid`, () => {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
 
-      tester.run(name, require('../../eslint-plugin/rules/validate-imports'), {
+      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
         valid: [],
         invalid: [
           {
@@ -107,8 +120,8 @@ query foo {
   valid.skip = function(rulePath) { it.skip(rulePath) };
   invalid.skip = function(rulePath) { it.skip(rulePath) };
 
-  valid('basic example', 'test-file.graphql');
-  invalid('missing file', 'no-such-import.graphql', [
+  valid('test-file.graphql');
+  invalid('no-such-import.graphql', [
     {
       type: 'CommentImportStatement',
       message: /no such file: '.\/_no-such-file.graphql' starting at:/,
@@ -119,7 +132,7 @@ query foo {
     },
     {
       type: 'FragmentSpread',
-      message: /Unknown Fragment/,
+      message: 'Unknown fragment "myFragment".',
       line: 5,
       column: 6,
       endLine: 5,
@@ -127,7 +140,7 @@ query foo {
     }
   ]);
 
-  invalid('unused import', 'unused-import.graphql', [
+  invalid('unused-import.graphql', [
     {
       type: 'CommentImportStatement',
       message: `import unused`,
@@ -139,10 +152,10 @@ query foo {
     },
   ]);
 
-  invalid('some missing fragments', 'missing-fragments.graphql', [
+  invalid('missing-fragments.graphql', [
     {
       type: 'FragmentSpread',
-      message: `Unknown Fragment`,
+      message: `Unknown fragment "noSuchFragment".`,
 
       line: 5,
       column: 6,
@@ -151,7 +164,7 @@ query foo {
     },
     {
       type: 'FragmentSpread',
-      message: `Unknown Fragment`,
+      message: `Unknown fragment "noSuchFragment".`,
 
       line: 7,
       column: 6,
@@ -160,7 +173,7 @@ query foo {
     },
   ]);
 
-  invalid('complex', 'complex.graphql', [
+  invalid('complex.graphql', [
     {
       type: 'CommentImportStatement',
       message: `imported fragments must begin with an underscore [_]`,
@@ -196,7 +209,7 @@ query foo {
     },
     {
       type: 'FragmentSpread',
-      message: `Unknown Fragment`,
+      message: `Unknown fragment "MyFragment".`,
 
       line: 8,
       column: 6,
@@ -205,12 +218,32 @@ query foo {
     },
     {
       type: 'FragmentSpread',
-      message: `Unknown Fragment`,
+      message: `Unknown fragment "myFile".`,
 
       line: 9,
       column: 6,
       endLine: 9,
       endColumn: 9,
     },
+  ]);
+
+  invalid('with-node-modules-import.graphql', [
+    {
+      type: 'CommentImportStatement',
+      message: `imports cannot contain 'node_modules'`,
+      line: 2,
+      column: 1,
+      endLine: 2,
+      endColumn: 59,
+    },
+
+    {
+      type: 'FragmentSpread',
+      message: `Unknown fragment "Fragment".`,
+      line: 5,
+      column: 6,
+      endLine: 5,
+      endColumn: 9,
+    }
   ]);
 });

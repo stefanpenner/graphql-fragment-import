@@ -1,9 +1,12 @@
 {
   "private": true,
   "devDependencies": {
-    "@eslint-ast/eslint-plugin-graphql": "link:/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-graphql/"
+    "@eslint-ast/eslint-plugin-graphql": "link:/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-plugin-graphql/",
+    "@graphql-fragment-import/eslint-plugin": "link:../eslint-plugin/",
+    "eslint": "^7.6.0"
   },
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:debug": "node debug ./node_modules/bin/eslint ."
   }
 }

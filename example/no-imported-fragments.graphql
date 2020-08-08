@@ -1,23 +1,13 @@
 #import "./_orange.graphql"
 #import "./_banana.graphql"
 
-fragment NeverUsed on Fruit {
-  id
-}
-
 fragment Apple on Fruit {
   id
   name
-  ...Kiwi
-  ...Missing
 }
 
 query queryName {
   allFruit {
-    ...Missing
     ...Apple
-    ...Orange # should exist
-    ...Banana
-    ...Kiwi
   }
 }

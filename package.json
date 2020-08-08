@@ -1,27 +1,40 @@
 {
   "name": "graphql-fragment-import",
   "version": "0.0.1",
+  "bin": {
+    "graphql-fragment-import": "./lib/cli.js"
+  },
   "dependencies": {
+    "chalk": "^4.1.0",
     "graphql": "^15.3.0",
     "meow": "^7.0.1",
     "mkdirp": "^1.0.4",
     "resolve": "^1.17.0",
+    "terminal-link": "^2.1.1",
     "walk-sync": "^2.2.0"
   },
   "devDependencies": {
-    "execa": "^4.0.3",
+    "@eslint-ast/eslint-plugin-graphql": "link:/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-plugin-graphql/",
     "chai": "^4.2.0",
     "eslint": "^7.6.0",
+    "execa": "^4.0.3",
     "fixturify-project": "^2.1.0",
-    "mocha": "^8.1.1",
-    "@eslint-ast/eslint-plugin-graphql": "link:/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-graphql/"
+    "mocha": "^8.1.1"
   },
   "scripts": {
-    "test": "mocha tests/**/*-test.js",
-    "test:debug": "mocha debug tests/**/*-test.js"
+    "test": "mocha tests/*-test.js tests/**/*-test.js",
+    "test:debug": "mocha debug tests/*-test.js tests/**/*-test.js"
   },
   "volta": {
     "node": "10.22.0",
     "yarn": "1.22.4"
+  },
+  "homepage": "https://github.com/stefanpenner/graphql-fragment-import",
+  "bugs": {
+    "url": "https://github.com/stefanpenner/graphql-fragment-import/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stefanpenner/graphql-fragment-import.git"
   }
 }

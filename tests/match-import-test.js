@@ -9,6 +9,8 @@ describe('match-import', function() {
     expect(matchImport('')).to.eql(null);
     expect(matchImport('#import "./someFragment.graphql"')).to.eql({ importIdentifier: './someFragment.graphql'});
     expect(matchImport(`#import './someFragment.graphql'`)).to.eql({ importIdentifier: './someFragment.graphql'});
+    expect(matchImport(`#import './someFragment.graphql';`)).to.eql({ importIdentifier: './someFragment.graphql'});
+    expect(matchImport(`#import './someFragment.graphql'    `)).to.eql({ importIdentifier: './someFragment.graphql'});
     expect(matchImport('import "./someFragment.graphql"')).to.eql(null);
     expect(matchImport(`#import './someFragment.graphql"`)).to.eql(null);
     expect(matchImport('#import ./someFragment.graphql"')).to.eql(null);

@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const inlineImports = require('../../lib/inline-imports');
 const parseImports = require('../parse-imports');
+const pathContainsDirectory = require('../path-contains-directory');
 
 // this rule errors if we have more then one top level query
 module.exports = {
@@ -36,6 +37,12 @@ module.exports = {
       const importFileName = path.basename(importIdentifier);
       const extname = path.extname(importFileName);
 
+      if (pathContainsDirectory(importIdentifier, 'node_modules')) {
+        context.report({ message: `imports cannot contain 'node_modules'`,
+          node
+        });
+        return;
+      }
       if (importFileName.charAt(0) !== '_') {
         context.report({ message: `imported fragments must begin with an underscore [_]`,
           node
@@ -122,7 +129,7 @@ module.exports = {
           for (const spread of spreads) {
             if (ALL_FRAGMENTS[spread.name.value]) { continue; }
             context.report({
-              message: `Unknown Fragment`,
+              message: `Unknown fragment "${spread.name.value}".`,
               node: spread
             })
           }

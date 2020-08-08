@@ -1,0 +1,8 @@
+type Fruit {
+  id: String!
+  name: String!
+}
+
+type Query {
+  allFruit: [Fruit]
+}

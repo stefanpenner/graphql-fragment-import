@@ -7,12 +7,10 @@ const FixturifyProject = require('fixturify-project');
 const fs = require('fs');
 const walkSync = require('walk-sync');
 
-const HELP_OUTPUT = require('../lib/help-output');
-
 describe('cli', function() {
   it(`prints help when explicitly provided with '--help'`, async function() {
     const childProcess = await execa('node', [cli, '--help']);
-    expect(childProcess.stdout).to.eql(HELP_OUTPUT);
+    expect(childProcess.stdout).to.match(/graphql-fragment-import/);
     expect(childProcess.stderr).to.eql('');
     expect(childProcess.exitCode).to.eql(0);
   });
@@ -21,8 +19,7 @@ describe('cli', function() {
     const childProcess = await execa('node', [cli], {
       reject: false
     });
-
-    expect(childProcess.stdout).to.eql(HELP_OUTPUT);
+    expect(childProcess.stdout).to.match(/graphql-fragment-import/);
     expect(childProcess.stderr).to.eql('');
     expect(childProcess.exitCode).to.not.eql(0);
   });
@@ -31,6 +28,28 @@ describe('cli', function() {
     let basedir;
     beforeEach(function() {
       const project = new FixturifyProject('project-name', '0.0.0', project => {
+        project.addDependency('some-dependency', '1.0.0', dependency => {
+          dependency.files['_some_fragment.graphql'] = `
+fragment SomeFragment on Person {
+  name
+}`;
+
+          dependency.files['some-query.graphql'] = `
+query {
+  someQuery {
+    name
+  }
+}`;
+        });
+
+        project.files['query-with-npm-dependency.graphql'] = `
+#import 'some-dependency/_some_fragment.graphql';
+query {
+  allUsers {
+    ...SomeFragment
+  }
+}`;
+
         project.files['all-people.graphql'] = `
 #import "./_person.graphql"
 query {
@@ -76,8 +95,6 @@ query {
   }
 }`;
 
-
-
     const SOME_PEOPLE_WITH_IMPORTS = `
 fragment Person on Person {
   id
@@ -88,7 +105,6 @@ query {
     ...Person
   }
 }`;
-
 
     const NESTED_OTHER_PEOPLE_WITH_IMPORTS = `
 fragment Person on Person {
@@ -105,6 +121,22 @@ query {
       const childProcess = await execa('node', [cli, `${basedir}/all-people.graphql`])
       expect(childProcess.stderr).to.eql(``);
       expect(childProcess.stdout).to.eql(ALL_PEOPLE_WITH_IMPORTS);
+    });
+
+    it('works on an example from node_modules', async function() {
+      const childProcess = await execa('node', [cli, `${basedir}/query-with-npm-dependency.graphql`]);
+      expect(childProcess.stderr).to.eql(``);
+      expect(childProcess.stdout).to.eql(`
+
+fragment SomeFragment on Person {
+  name
+}
+query {
+  allUsers {
+    ...SomeFragment
+  }
+}`
+      );
     });
 
     it('supports -o', async function() {
@@ -155,7 +187,6 @@ query {
       expect(childProcess.stderr).to.includes('When providing an input file, you must specify --output');
     });
 
-
     it('fails if multiple inputs are provide without --output-dir', async function() {
       const childProcess = await execa('node', [
         cli,
@@ -180,14 +211,16 @@ query {
 
       expect(childProcess.exitCode).to.eql(0);
       expect(childProcess.stdout).to.eql(
-`  [processed] all-people.graphql -> ${basedir}/output//all-people.graphql
-  [processed] nested/other-people.graphql -> ${basedir}/output//nested/other-people.graphql
-  [processed] some-people.graphql -> ${basedir}/output//some-people.graphql`);
+`  [processed] all-people.graphql -> ${basedir}/output/all-people.graphql
+  [processed] nested/other-people.graphql -> ${basedir}/output/nested/other-people.graphql
+  [processed] query-with-npm-dependency.graphql -> ${basedir}/output/query-with-npm-dependency.graphql
+  [processed] some-people.graphql -> ${basedir}/output/some-people.graphql`);
       expect(childProcess.stderr).to.includes('');
 
       expect(walkSync(`${basedir}/output`, { directories: false })).to.eql([
         'all-people.graphql',
         'nested/other-people.graphql',
+        'query-with-npm-dependency.graphql',
         'some-people.graphql',
       ]);
 

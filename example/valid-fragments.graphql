@@ -1,9 +1,6 @@
 #import "./_orange.graphql"
 #import "./_banana.graphql"
-
-fragment NeverUsed on Fruit {
-  id
-}
+#import "./_missing.graphql"
 
 fragment Apple on Fruit {
   id
