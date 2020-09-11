@@ -1,4 +1,4 @@
-# grapqhl-fragment-import ![CI](https://github.com/stefanpenner/grapqhl-fragment-import/workflows/CI/badge.svg)
+# graphql-fragment-import ![CI](https://github.com/stefanpenner/grapqhl-fragment-import/workflows/CI/badge.svg)
 
 NOTE: Module is WIP, it is not yet released, and subject to change.
 
