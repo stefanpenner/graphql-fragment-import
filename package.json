@@ -14,7 +14,7 @@
     "walk-sync": "^2.2.0"
   },
   "devDependencies": {
-    "@eslint-ast/eslint-plugin-graphql": "link:/Users/spenner/src/stefanpenner/eslint-ast/projects/eslint-plugin-graphql/",
+    "@eslint-ast/eslint-plugin-graphql": "^1.0.1",
     "chai": "^4.2.0",
     "eslint": "^7.6.0",
     "execa": "^4.0.3",

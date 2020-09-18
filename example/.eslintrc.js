@@ -8,23 +8,23 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 11
   },
-  rules: { },
+  rules: {},
   overrides: [
     {
       files: '**/*.graphql',
       parser: '@eslint-ast/eslint-plugin-graphql/parser',
+      parserOptions: {
+        schema: `${__dirname}/schema.graphql`,
+      },
       plugins: [
         "@graphql-fragment-import/eslint-plugin",
         '@eslint-ast/eslint-plugin-graphql',
       ],
-
+      extends: require.resolve('@eslint-ast/eslint-plugin-graphql/recommended.js'),
       rules: {
         '@graphql-fragment-import/validate-imports': 'error',
-        '@eslint-ast/graphql/all': [
-          'error',
-          { schema: `${__dirname}/schema.graphql` }
-        ],
-        '@eslint-ast/graphql/single-top-level-query': 'error',
+        '@eslint-ast/graphql/KnownFragmentNamesRule': 'off',
+        '@eslint-ast/graphql/NoUnusedFragmentsRule': 'off',
       }
     },
   ],
