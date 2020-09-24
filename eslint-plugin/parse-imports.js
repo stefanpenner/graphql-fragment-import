@@ -1,6 +1,6 @@
-'use strict';
-const matchImport = require('../lib/match-import');
-const EOL_REGEXP = require('../lib/eol-regexp');
+"use strict";
+const matchImport = require("../lib/match-import");
+const EOL_REGEXP = require("../lib/eol-regexp");
 
 module.exports = function parseImports(source) {
   const imports = [];
@@ -13,9 +13,9 @@ module.exports = function parseImports(source) {
     if (match) {
       const value = match.importIdentifier;
       imports.push({
-        type: 'CommentImportStatement',
+        type: "CommentImportStatement",
         name: {
-          type: 'Name',
+          type: "Name",
           value,
           loc: {
             start: {
@@ -25,11 +25,11 @@ module.exports = function parseImports(source) {
             end: {
               line: lineCount,
               column: 9 + value.length,
-            }
+            },
           },
           tokens: [],
           comments: [],
-          range: [count + 9, count + 9 + value.length]
+          range: [count + 9, count + 9 + value.length],
         },
         loc: {
           start: {
@@ -39,14 +39,14 @@ module.exports = function parseImports(source) {
           end: {
             line: lineCount,
             column: 0 + line.length,
-          }
+          },
         },
-          tokens: [],
-          comments: [],
-          range: [count, count + line.length]
-      })
+        tokens: [],
+        comments: [],
+        range: [count, count + line.length],
+      });
     }
     count += line.length + 1 /* newline yo TODO: windows EOL */;
   }
   return imports;
-}
+};
