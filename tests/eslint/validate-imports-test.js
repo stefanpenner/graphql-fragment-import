@@ -1,28 +1,34 @@
-"use strict";
+'use strict';
 
-const { RuleTester } = require("eslint");
-const Project = require("fixturify-project");
-const fs = require("fs");
-const { expect } = require("chai");
+const { RuleTester } = require('eslint');
+const Project = require('fixturify-project');
+const fs = require('fs');
+const { expect } = require('chai');
 
-describe("eslint/validate-imports", function () {
+describe('eslint/validate-imports', function () {
   let project, tester;
   beforeEach(function () {
-    project = new Project("my-fake-project", "0.0.0", (project) => {
-      project.files["_my-file.graphql"] = `
-fragment myFile on People {
+    project = new Project('my-fake-project', '0.0.0', (project) => {
+      project.files['_my-person.graphql'] = `
+fragment myPerson on People {
   id
+  name
+}`;
+      project.files['_my-fruit.graphql'] = `
+fragment myFruit on Fruit {
+  id
+  colour
 }`;
 
-      project.files["test-file.graphql"] = `
-#import './_my-file.graphql'
+      project.files['test-file.graphql'] = `
+#import './_my-person.graphql'
 query foo {
   bar {
-    ...myFile
+    ...myPerson
   }
 }`;
 
-      project.files["no-such-import.graphql"] = `
+      project.files['no-such-import.graphql'] = `
 #import './_no-such-file.graphql'
 query foo {
   bar {
@@ -31,31 +37,31 @@ query foo {
 }
 `;
 
-      project.files["unused-import.graphql"] = `
-#import './_my-file.graphql'
+      project.files['unused-import.graphql'] = `
+#import './_my-person.graphql'
 query foo {
   bar {
     id
   }
 }`;
-      project.files["missing-fragments.graphql"] = `
-#import './_my-file.graphql'
+      project.files['missing-fragments.graphql'] = `
+#import './_my-person.graphql'
 query foo {
   bar {
     ...noSuchFragment,
-    ...myFile,
+    ...myPerson,
     ...noSuchFragment,
   }
 }`;
 
-      project.addDependency("some-dependency", "1.0.0", (addon) => {
-        addon.files["_fragment.graphql"] = `
-fragment Fragment on Fruit {
+      project.addDependency('some-dependency', '1.0.0', (addon) => {
+        addon.files['_fragment.graphql'] = `
+fragment MyFragment on Fruit {
   id
 } `;
       });
 
-      project.files["with-node-modules-import.graphql"] = `
+      project.files['with-node-modules-import.graphql'] = `
 #import './node_modules/some-dependency/_fragment.graphql'
 query foo {
   bar {
@@ -64,7 +70,7 @@ query foo {
 }
       `;
 
-      project.files["complex.graphql"] = `
+      project.files['complex.graphql'] = `
 #import './file-without-underscore.graphql'
 #import './_fragment.apple'
 #import './_fragment.graphgql'
@@ -72,78 +78,99 @@ query foo {
 query foo {
   bar {
     ...MyFragment
-    ...myFile
+    ...myPerson
   }
 } `;
     });
+
+    // two errors for the bad spreads on imported fragments
+    // the in-document fragment is left to the standard rule, wrapped by @eslint-ast/eslint-plugin-graphql
+    project.files['invalid-spread-imported.graphql'] = `
+#import './_my-person.graphql'
+#import './_my-fruit.graphql'
+fragment inDocumentFragment on People {
+  name
+}
+query foo {
+  bar {
+    ...myFruit
+    ...inDocumentFragment
+  }
+  baz {
+    ...myPerson
+    ...inDocumentFragment
+  }
+} `;
 
     project.writeSync();
 
     tester = new RuleTester({
       parser: require.resolve(`@eslint-ast/eslint-plugin-graphql/parser`),
+      parserOptions: {
+        filename: 'test-file.graphql',
+        schema: `${__dirname}/schema.graphql`,
+      },
     });
   });
 
-  it("fails if no parser is provided", function () {
-    const rule = require("../../eslint-plugin/rules/validate-imports");
+  it('fails if no parser is provided', function () {
+    const rule = require('../../eslint-plugin/rules/validate-imports');
 
     expect(() =>
       rule.create({
         getFilename() {
-          return "";
+          return '';
         },
-        parserServices: {},
+        parserServices: {
+          createTypeInfo() {},
+        },
       })
     ).to.throw(/invalid parser detected/);
+
     expect(() =>
       rule.create({
         getFilename() {
-          return "";
+          return '';
         },
-        parserServices: { getFragmentDefinitionsFromSource() {} },
+        parserServices: {
+          createTypeInfo() {},
+          getFragmentDefinitionsFromSource() {},
+        },
       })
     ).to.not.throw();
   });
 
   function valid(_filename) {
-    it(` lints ${_filename} as valid`, () => {
+    it(` lints ${_filename} as valid`, function () {
       const filename = `${project.baseDir}/${_filename}`;
-      const code = fs.readFileSync(filename, "utf8");
-      tester.run(
-        _filename,
-        require("../../eslint-plugin/rules/validate-imports"),
-        {
-          valid: [
-            {
-              code,
-              filename,
-            },
-          ],
-          invalid: [],
-        }
-      );
+      const code = fs.readFileSync(filename, 'utf8');
+      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
+        valid: [
+          {
+            code,
+            filename,
+          },
+        ],
+        invalid: [],
+      });
     });
   }
 
   function invalid(_filename, errors) {
-    it(`lints ${_filename} as invalid`, () => {
+    it(`lints ${_filename} as invalid`, function () {
       const filename = `${project.baseDir}/${_filename}`;
-      const code = fs.readFileSync(filename, "utf8");
+      const code = fs.readFileSync(filename, 'utf8');
 
-      tester.run(
-        _filename,
-        require("../../eslint-plugin/rules/validate-imports"),
-        {
-          valid: [],
-          invalid: [
-            {
-              code,
-              filename,
-              errors,
-            },
-          ],
-        }
-      );
+      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
+        valid: [],
+        invalid: [
+          {
+            code,
+            filename,
+            errors,
+          },
+        ],
+      });
     });
   }
 
@@ -154,10 +181,10 @@ query foo {
     it.skip(rulePath);
   };
 
-  valid("test-file.graphql");
-  invalid("no-such-import.graphql", [
+  valid('test-file.graphql');
+  invalid('no-such-import.graphql', [
     {
-      type: "CommentImportStatement",
+      type: 'CommentImportStatement',
       message: /no such file: '.\/_no-such-file.graphql' starting at:/,
       line: 2,
       column: 1,
@@ -165,7 +192,7 @@ query foo {
       endColumn: 34,
     },
     {
-      type: "FragmentSpread",
+      type: 'FragmentSpread',
       message: 'Unknown fragment "myFragment".',
       line: 5,
       column: 6,
@@ -174,21 +201,21 @@ query foo {
     },
   ]);
 
-  invalid("unused-import.graphql", [
+  invalid('unused-import.graphql', [
     {
-      type: "CommentImportStatement",
+      type: 'CommentImportStatement',
       message: `import unused`,
 
       line: 2,
       column: 1,
       endLine: 2,
-      endColumn: 29,
+      endColumn: 31,
     },
   ]);
 
-  invalid("missing-fragments.graphql", [
+  invalid('missing-fragments.graphql', [
     {
-      type: "FragmentSpread",
+      type: 'FragmentSpread',
       message: `Unknown fragment "noSuchFragment".`,
 
       line: 5,
@@ -197,7 +224,7 @@ query foo {
       endColumn: 9,
     },
     {
-      type: "FragmentSpread",
+      type: 'FragmentSpread',
       message: `Unknown fragment "noSuchFragment".`,
 
       line: 7,
@@ -207,9 +234,9 @@ query foo {
     },
   ]);
 
-  invalid("complex.graphql", [
+  invalid('complex.graphql', [
     {
-      type: "CommentImportStatement",
+      type: 'CommentImportStatement',
       message: `imported fragments must begin with an underscore [_]`,
       line: 2,
       column: 1,
@@ -217,7 +244,7 @@ query foo {
       endColumn: 44,
     },
     {
-      type: "CommentImportStatement",
+      type: 'CommentImportStatement',
       message: `imported fragments must have the extension '.graphql' but got '.apple'`,
       line: 3,
       column: 1,
@@ -225,7 +252,7 @@ query foo {
       endColumn: 28,
     },
     {
-      type: "CommentImportStatement",
+      type: 'CommentImportStatement',
       message: `imported fragments must have the extension '.graphql' but got '.graphgql'`,
       line: 4,
       column: 1,
@@ -233,7 +260,7 @@ query foo {
       endColumn: 31,
     },
     {
-      type: "CommentImportStatement",
+      type: 'CommentImportStatement',
       message: `imported fragments must have the extension '.graphql' but got '.grapqhl'`,
       line: 5,
       column: 1,
@@ -241,7 +268,7 @@ query foo {
       endColumn: 30,
     },
     {
-      type: "FragmentSpread",
+      type: 'FragmentSpread',
       message: `Unknown fragment "MyFragment".`,
 
       line: 8,
@@ -250,8 +277,8 @@ query foo {
       endColumn: 9,
     },
     {
-      type: "FragmentSpread",
-      message: `Unknown fragment "myFile".`,
+      type: 'FragmentSpread',
+      message: `Unknown fragment "myPerson".`,
 
       line: 9,
       column: 6,
@@ -260,9 +287,9 @@ query foo {
     },
   ]);
 
-  invalid("with-node-modules-import.graphql", [
+  invalid('with-node-modules-import.graphql', [
     {
-      type: "CommentImportStatement",
+      type: 'CommentImportStatement',
       message: `imports cannot contain 'node_modules'`,
       line: 2,
       column: 1,
@@ -271,11 +298,32 @@ query foo {
     },
 
     {
-      type: "FragmentSpread",
+      type: 'FragmentSpread',
       message: `Unknown fragment "Fragment".`,
       line: 5,
       column: 6,
       endLine: 5,
+      endColumn: 9,
+    },
+  ]);
+
+  invalid('invalid-spread-imported.graphql', [
+    {
+      type: 'FragmentSpread',
+      message:
+        'Fragment "myFruit" cannot be spread here as objects of type "People" can never be of type "Fruit"',
+      line: 9,
+      column: 6,
+      endLine: 9,
+      endColumn: 9,
+    },
+    {
+      type: 'FragmentSpread',
+      message:
+        'Fragment "myPerson" cannot be spread here as objects of type "Fruit" can never be of type "People"',
+      line: 13,
+      column: 6,
+      endLine: 13,
       endColumn: 9,
     },
   ]);
