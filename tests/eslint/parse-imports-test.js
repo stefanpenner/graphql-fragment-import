@@ -1,17 +1,17 @@
-'use strict';
+"use strict";
 
-const { expect } = require('chai');
+const { expect } = require("chai");
 
-describe('parse-imports', function() {
-  const parseImports = require('../../eslint-plugin/parse-imports');
-  it('works', function() {
-    expect(parseImports('')).to.eql([]);
+describe("parse-imports", function () {
+  const parseImports = require("../../eslint-plugin/parse-imports");
+  it("works", function () {
+    expect(parseImports("")).to.eql([]);
     expect(parseImports('#import "_foo.graphql"')).to.deep.eql([
       {
-        type: 'CommentImportStatement',
+        type: "CommentImportStatement",
         name: {
-          type: 'Name',
-          value: '_foo.graphql',
+          type: "Name",
+          value: "_foo.graphql",
           loc: {
             start: {
               line: 1,
@@ -19,12 +19,12 @@ describe('parse-imports', function() {
             },
             end: {
               line: 1,
-              column: 21
-            }
+              column: 21,
+            },
           },
           comments: [],
           range: [9, 21],
-          tokens: []
+          tokens: [],
         },
         comments: [],
         tokens: [],
@@ -35,20 +35,22 @@ describe('parse-imports', function() {
           },
           end: {
             line: 1,
-            column: 22
-          }
+            column: 22,
+          },
         },
-        range: [0, 22]
-      }
+        range: [0, 22],
+      },
     ]);
 
-    expect(parseImports(`#import "_foo.graphql"
-#import "_bar.graphql"`)).to.eql([
+    expect(
+      parseImports(`#import "_foo.graphql"
+#import "_bar.graphql"`)
+    ).to.eql([
       {
-        type: 'CommentImportStatement',
+        type: "CommentImportStatement",
         name: {
-          type: 'Name',
-          value: '_foo.graphql',
+          type: "Name",
+          value: "_foo.graphql",
           loc: {
             start: {
               line: 1,
@@ -56,12 +58,12 @@ describe('parse-imports', function() {
             },
             end: {
               line: 1,
-              column: 21
-            }
+              column: 21,
+            },
           },
           comments: [],
           range: [9, 21],
-          tokens: []
+          tokens: [],
         },
         loc: {
           start: {
@@ -70,18 +72,18 @@ describe('parse-imports', function() {
           },
           end: {
             line: 1,
-            column: 22
-          }
+            column: 22,
+          },
         },
         comments: [],
         range: [0, 22],
-        tokens: []
+        tokens: [],
       },
       {
-        type: 'CommentImportStatement',
+        type: "CommentImportStatement",
         name: {
-          type: 'Name',
-          value: '_bar.graphql',
+          type: "Name",
+          value: "_bar.graphql",
           loc: {
             start: {
               line: 2,
@@ -89,12 +91,12 @@ describe('parse-imports', function() {
             },
             end: {
               line: 2,
-              column: 21
-            }
+              column: 21,
+            },
           },
           comments: [],
           range: [32, 44],
-          tokens: []
+          tokens: [],
         },
         loc: {
           start: {
@@ -103,13 +105,13 @@ describe('parse-imports', function() {
           },
           end: {
             line: 2,
-            column: 22
-          }
+            column: 22,
+          },
         },
         comments: [],
         range: [23, 45],
         tokens: [],
-      }
+      },
     ]);
   });
 });

@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 module.exports = function gqlToEs(node) {
   // map from gql AST Node to one eslint understands
@@ -14,9 +14,9 @@ module.exports = function gqlToEs(node) {
     end: {
       line: loc.endToken.line,
       column: loc.endToken.column,
-    }
-  }
+    },
+  };
   node.range = [loc.start, loc.end];
   node.comments = [];
   node.tokens = [];
-}
+};

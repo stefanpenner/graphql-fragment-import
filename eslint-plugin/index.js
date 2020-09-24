@@ -2,9 +2,9 @@
 
 module.exports = {
   rules: {
-    get 'validate-imports'() {
-      return require('./rules/validate-imports');
-    }
+    get "validate-imports"() {
+      return require("./rules/validate-imports");
+    },
   },
 
   // TODO:
@@ -15,16 +15,16 @@ module.exports = {
       description: "linting for fragments and importable fragments",
       category: "",
       recommended: true,
-      url: ""
+      url: "",
     },
 
     fixable: "",
-    schema: [] // no options
+    schema: [], // no options
   },
 
-  create: function(/*context*/) {
+  create: function (/*context*/) {
     return {
       // callback functions
     };
-  }
+  },
 };
