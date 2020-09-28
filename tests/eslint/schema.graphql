@@ -1,0 +1,14 @@
+type People {
+  id: String!
+  name: String!
+}
+
+type Fruit {
+  id: String!
+  colour: String!
+}
+
+type Query {
+  bar: [People]
+  baz: [Fruit]
+}
