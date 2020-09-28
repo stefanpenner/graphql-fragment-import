@@ -28,6 +28,13 @@ query foo {
   }
 }`;
 
+      project.files['test-file-fragment-with-import.graphql'] = `
+#import './_my-person.graphql'
+fragment foo on People {
+  ...myPerson
+  someOtherProperty
+}`;
+
       project.files['no-such-import.graphql'] = `
 #import './_no-such-file.graphql'
 query foo {
@@ -184,6 +191,7 @@ query foo {
   };
 
   valid('test-file.graphql');
+  valid('test-file-fragment-with-import.graphql');
   invalid('no-such-import.graphql', [
     {
       type: 'CommentImportStatement',

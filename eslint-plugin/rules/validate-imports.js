@@ -91,11 +91,14 @@ module.exports = {
     }
 
     function FragmentSpread(node) {
+      let type = typeInfo.getType();
       // we grab all in-file fragment spread definitions, grouped by name for later validation
       SPREAD_FRAGMENTS[node.name.value] = SPREAD_FRAGMENTS[node.name.value] || [];
       SPREAD_FRAGMENTS[node.name.value].push({
         node,
-        type: typeInfo.getType(),
+        // type.ofType for fragment spreads in queries
+        // type for fragment spreads in fragment definitions
+        type: type.ofType || type,
       });
     }
 
@@ -152,7 +155,7 @@ module.exports = {
               }
               let fragmentDefinitionTypeCondition =
                 ALL_FRAGMENTS[node.name.value].typeCondition.name.value;
-              let fragmentSpreadTypeName = type.ofType.name;
+              let fragmentSpreadTypeName = type.name;
 
               if (fragmentSpreadTypeName !== fragmentDefinitionTypeCondition) {
                 // imported fragment is spread on wrong type
