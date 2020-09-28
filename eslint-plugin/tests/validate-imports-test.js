@@ -8,7 +8,7 @@ const { expect } = require('chai');
 describe('eslint/validate-imports', function () {
   let project, tester;
   beforeEach(function () {
-    project = new Project('my-fake-project', '0.0.0', (project) => {
+    project = new Project('my-fake-project', '0.0.0', project => {
       project.files['_my-person.graphql'] = `
 fragment myPerson on People {
   id
@@ -54,7 +54,7 @@ query foo {
   }
 }`;
 
-      project.addDependency('some-dependency', '1.0.0', (addon) => {
+      project.addDependency('some-dependency', '1.0.0', addon => {
         addon.files['_fragment.graphql'] = `
 fragment MyFragment on Fruit {
   id
@@ -124,7 +124,7 @@ query foo {
         parserServices: {
           createTypeInfo() {},
         },
-      })
+      }),
     ).to.throw(/invalid parser detected/);
 
     expect(() =>
@@ -136,7 +136,7 @@ query foo {
           createTypeInfo() {},
           getFragmentDefinitionsFromSource() {},
         },
-      })
+      }),
     ).to.not.throw();
   });
 

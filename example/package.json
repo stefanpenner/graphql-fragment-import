@@ -1,10 +1,9 @@
 {
-  "name": "eslint-plugin-graphql-fragment-import-example",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "@eslint-ast/eslint-plugin-graphql": "link:/Users/dhamilto/src/stefanpenner/eslint-ast/projects/eslint-plugin-graphql/",
-    "eslint-plugin-graphql-fragment-import": "link:../eslint-plugin-graphql-fragment-import/",
+    "@eslint-ast/eslint-plugin-graphql": "^1.0.3",
+    "@eslint-plugin-graphql-fragment-import/eslint-plugin": "^1.0.0",
     "eslint": "^7.6.0"
   },
   "scripts": {

@@ -33,10 +33,6 @@
     mocha "^8.1.0"
     resolve "^1.17.0"
 
-"@eslint-ast/eslint-plugin-graphql@link:../eslint-ast/projects/eslint-plugin-graphql":
-  version "0.0.0"
-  uid ""
-
 "@eslint/eslintrc@^0.1.3":
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.1.3.tgz#7d1a2b2358552cc04834c0979bd4275362e37085"
@@ -576,9 +572,6 @@ eslint-plugin-es@^3.0.0:
   dependencies:
     eslint-utils "^2.0.0"
     regexpp "^3.0.0"
-
-"eslint-plugin-graphql-fragment-import@link:eslint-plugin-graphql-fragment-import":
-  version "0.1.0"
 
 eslint-plugin-mocha@^8.0.0:
   version "8.0.0"

@@ -28,8 +28,8 @@ describe('cli', function () {
   describe('some real examples', function () {
     let basedir;
     beforeEach(function () {
-      new FixturifyProject('project-name', '0.0.0', (project) => {
-        project.addDependency('some-dependency', '1.0.0', (dependency) => {
+      new FixturifyProject('project-name', '0.0.0', project => {
+        project.addDependency('some-dependency', '1.0.0', dependency => {
           dependency.files['_some_fragment.graphql'] = `
 fragment SomeFragment on Person {
   name
@@ -167,7 +167,7 @@ query {
       expect(childProcess.stdout).to.eql('');
       // TODO: prettier errors
       expect(childProcess.stderr).to.includes(
-        'Cannot have both --output and --output-dir specified'
+        'Cannot have both --output and --output-dir specified',
       );
     });
 
@@ -177,13 +177,13 @@ query {
         [cli, `${basedir}/all-people.graphql`, '-d', `${basedir}/output/`],
         {
           reject: false,
-        }
+        },
       );
 
       expect(childProcess.exitCode).to.eql(1);
       expect(childProcess.stdout).to.eql('');
       expect(childProcess.stderr).to.includes(
-        'When providing an input file, you must specify --output'
+        'When providing an input file, you must specify --output',
       );
     });
 
@@ -193,7 +193,7 @@ query {
         [cli, `${basedir}/all-people.graphql`, `${basedir}/some-people.graphql`],
         {
           reject: false,
-        }
+        },
       );
 
       expect(childProcess.exitCode).to.eql(1);
@@ -209,13 +209,13 @@ query {
         `  [processed] all-people.graphql -> ${path.join(basedir, '/output/all-people.graphql')}
   [processed] nested/other-people.graphql -> ${path.join(
     basedir,
-    '/output/nested/other-people.graphql'
+    '/output/nested/other-people.graphql',
   )}
   [processed] query-with-npm-dependency.graphql -> ${path.join(
     basedir,
-    '/output/query-with-npm-dependency.graphql'
+    '/output/query-with-npm-dependency.graphql',
   )}
-  [processed] some-people.graphql -> ${path.join(basedir, '/output/some-people.graphql')}`
+  [processed] some-people.graphql -> ${path.join(basedir, '/output/some-people.graphql')}`,
       );
       expect(childProcess.stderr).to.includes('');
 
@@ -227,13 +227,13 @@ query {
       ]);
 
       expect(fs.readFileSync(`${basedir}/output/all-people.graphql`, 'UTF8')).to.eql(
-        ALL_PEOPLE_WITH_IMPORTS
+        ALL_PEOPLE_WITH_IMPORTS,
       );
       expect(fs.readFileSync(`${basedir}/output/some-people.graphql`, 'UTF8')).to.eql(
-        SOME_PEOPLE_WITH_IMPORTS
+        SOME_PEOPLE_WITH_IMPORTS,
       );
       expect(fs.readFileSync(`${basedir}/output/nested/other-people.graphql`, 'UTF8')).to.eql(
-        NESTED_OTHER_PEOPLE_WITH_IMPORTS
+        NESTED_OTHER_PEOPLE_WITH_IMPORTS,
       );
     });
   });

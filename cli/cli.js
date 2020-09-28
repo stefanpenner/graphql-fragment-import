@@ -49,7 +49,7 @@ if (cli.input.length === 0) {
 
     const queryFiles = walkSync(input, {
       ignore: ['**/node_modules/**'],
-    }).filter((file) => {
+    }).filter(file => {
       // don't use globs for this, since we must traverse all files anyways,
       // globs are only really useful when they can limit the directories we
       // traverse.
@@ -82,7 +82,7 @@ if (cli.input.length === 0) {
   } else {
     if ('outputDir' in cli.flags) {
       throw new Error(
-        'When providing an input file, you must specify --output or consume the result via stdout.'
+        'When providing an input file, you must specify --output or consume the result via stdout.',
       );
     }
 

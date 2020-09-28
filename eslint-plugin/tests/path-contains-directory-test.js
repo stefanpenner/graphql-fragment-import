@@ -23,23 +23,23 @@ describe('path-contains-directory', function () {
     expect(pathContainsDirectory(path.win32.resolve('some/dir'), 'node_modules')).to.eql(false);
     expect(pathContainsDirectory(path.win32.resolve('./some/dir'), 'node_modules')).to.eql(false);
     expect(pathContainsDirectory(path.win32.resolve('./node_module/dir'), 'node_modules')).to.eql(
-      false
+      false,
     );
     expect(pathContainsDirectory(path.win32.resolve('./node/modules/dir'), 'node_modules')).to.eql(
-      false
+      false,
     );
     expect(pathContainsDirectory(path.win32.resolve('./node_modules/dir'), 'node_modules')).to.eql(
-      true
+      true,
     );
     expect(pathContainsDirectory(path.win32.resolve('node_modules/dir'), 'node_modules')).to.eql(
-      true
+      true,
     );
     expect(pathContainsDirectory(path.win32.resolve('node_modules'), 'node_modules')).to.eql(true);
     expect(pathContainsDirectory(path.win32.resolve('./node_modules'), 'node_modules')).to.eql(
-      true
+      true,
     );
     expect(
-      pathContainsDirectory(path.win32.resolve('./some-path/node_modules'), 'node_modules')
+      pathContainsDirectory(path.win32.resolve('./some-path/node_modules'), 'node_modules'),
     ).to.eql(true);
   });
 });

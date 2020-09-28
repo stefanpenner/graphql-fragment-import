@@ -44,7 +44,7 @@ describe('parse-imports', function () {
 
     expect(
       parseImports(`#import "_foo.graphql"
-#import "_bar.graphql"`)
+#import "_bar.graphql"`),
     ).to.eql([
       {
         type: 'CommentImportStatement',

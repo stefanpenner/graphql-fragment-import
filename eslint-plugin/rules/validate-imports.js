@@ -26,7 +26,7 @@ module.exports = {
     const typeInfo = context.parserServices.createTypeInfo();
     if (typeof context.parserServices.getFragmentDefinitionsFromSource !== 'function') {
       throw new Error(
-        `[graphql-fragment-import/validate-imports] invalid parser detected, please ensure the relevant eslint parser is: '@eslint-ast/eslint-plugin-graphql/parser'`
+        `[graphql-fragment-import/validate-imports] invalid parser detected, please ensure the relevant eslint parser is: '@eslint-ast/eslint-plugin-graphql/parser'`,
       );
     }
 
