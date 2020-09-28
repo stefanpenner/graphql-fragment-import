@@ -1,7 +1,12 @@
 'use strict';
 
-// TODO: configs?
 module.exports = {
+  configs: {
+    get recommended() {
+      return require('./configs/recommended');
+    },
+  },
+
   rules: {
     get 'validate-imports'() {
       return require('./rules/validate-imports');
