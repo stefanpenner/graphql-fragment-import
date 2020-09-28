@@ -2,7 +2,7 @@
 
 const chalk = require('chalk');
 const terminalLink = require('terminal-link');
-const pkg = require('../package.json');
+const pkg = require('./package.json');
 
 module.exports = chalk`
 {bold ${terminalLink('graphql-fragment-import', pkg.homepage)}}

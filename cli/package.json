@@ -1,0 +1,28 @@
+{
+  "name": "@graphql-fragment-import/cli",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "mocha --recursive tests",
+    "test:debug": "mocha --inspect-brk --recursive tests"
+  },
+  "bin": {
+    "graphql-fragment-import": "./cli.js"
+  },
+  "dependencies": {
+    "@graphql-fragment-import/lib": "^1.0.0",
+    "chalk": "^4.1.0",
+    "meow": "^7.0.1",
+    "mkdirp": "^1.0.4",
+    "terminal-link": "^2.1.1",
+    "walk-sync": "^2.2.0"
+  },
+  "devDependencies": {
+    "execa": "^4.0.3",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.1",
+    "eslint": "^7.9.0",
+    "fixturify-project": "^2.1.0",
+    "fixturify-project": "^2.1.0"
+  }
+}
+

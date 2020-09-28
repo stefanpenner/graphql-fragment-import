@@ -175,9 +175,11 @@ query foo {
   }
 
   valid.skip = function (rulePath) {
+    // eslint-disable-next-line mocha/no-skipped-tests
     it.skip(rulePath);
   };
   invalid.skip = function (rulePath) {
+    // eslint-disable-next-line mocha/no-skipped-tests
     it.skip(rulePath);
   };
 

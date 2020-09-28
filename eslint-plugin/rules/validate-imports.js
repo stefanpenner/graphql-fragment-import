@@ -1,8 +1,7 @@
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
-const inlineImports = require('../../lib/inline-imports');
+const inlineImports = require('@graphql-fragment-import/lib/inline-imports');
 const parseImports = require('../parse-imports');
 const pathContainsDirectory = require('../path-contains-directory');
 

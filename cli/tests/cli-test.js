@@ -2,7 +2,7 @@
 
 const execa = require('execa');
 const { expect } = require('chai');
-const cli = require.resolve('../lib/cli');
+const cli = require.resolve('../cli');
 const FixturifyProject = require('fixturify-project');
 const fs = require('fs');
 const walkSync = require('walk-sync');
@@ -28,7 +28,7 @@ describe('cli', function () {
   describe('some real examples', function () {
     let basedir;
     beforeEach(function () {
-      const project = new FixturifyProject('project-name', '0.0.0', (project) => {
+      new FixturifyProject('project-name', '0.0.0', (project) => {
         project.addDependency('some-dependency', '1.0.0', (dependency) => {
           dependency.files['_some_fragment.graphql'] = `
 fragment SomeFragment on Person {

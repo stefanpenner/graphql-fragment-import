@@ -1,34 +1,18 @@
 {
-  "name": "graphql-fragment-import",
   "private": true,
   "version": "1.0.0",
-  "bin": {
-    "graphql-fragment-import": "./lib/cli.js"
-  },
   "workspaces": [
     "eslint-plugin",
+    "lib",
+    "cli",
     "example"
   ],
-  "dependencies": {
-    "chalk": "^4.1.0",
-    "graphql": "^15.3.0",
-    "meow": "^7.0.1",
-    "mkdirp": "^1.0.4",
-    "resolve": "^1.17.0",
-    "terminal-link": "^2.1.1",
-    "walk-sync": "^2.2.0"
-  },
   "devDependencies": {
-    "@eslint-ast/eslint-plugin-graphql": "^1.0.1",
-    "chai": "^4.2.0",
     "eslint": "^7.6.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "execa": "^4.0.3",
-    "fixturify-project": "^2.1.0",
-    "mocha": "^8.1.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.2"
   },
@@ -36,8 +20,8 @@
     "format": "prettier --write '**/*.js'",
     "test": "npm-run-all lint test:js",
     "lint": "eslint .",
-    "test:js": "mocha --recursive ./tests eslint-plugin-graphql-fragment-import/tests",
-    "test:debug": "mocha --inspect-brk --recursive tests example ./tests ./eslint-plugin-graphql-fragment-import/tests"
+    "test:js": "mocha --recursive eslint-plugin/tests lib/tests cli/tests",
+    "test:debug": "mocha --inspect-brk --recursive eslint-plugin/tests lib/tests cli/tests"
   },
   "volta": {
     "node": "10.22.0",

@@ -1,6 +1,6 @@
 'use strict';
-const matchImport = require('../lib/match-import');
-const EOL_REGEXP = require('../lib/eol-regexp');
+const matchImport = require('@graphql-fragment-import/lib/match-import');
+const EOL_REGEXP = require('@graphql-fragment-import/lib/eol-regexp');
 
 module.exports = function parseImports(source) {
   const imports = [];
