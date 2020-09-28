@@ -114,7 +114,7 @@ query foo {
   });
 
   it('fails if no parser is provided', function () {
-    const rule = require('../../eslint-plugin/rules/validate-imports');
+    const rule = require('../rules/validate-imports');
 
     expect(() =>
       rule.create({
@@ -144,7 +144,7 @@ query foo {
     it(` lints ${_filename} as valid`, function () {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
-      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
+      tester.run(_filename, require('../rules/validate-imports'), {
         valid: [
           {
             code,
@@ -161,7 +161,7 @@ query foo {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
 
-      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
+      tester.run(_filename, require('../rules/validate-imports'), {
         valid: [],
         invalid: [
           {

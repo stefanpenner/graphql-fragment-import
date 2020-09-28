@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 module.exports = function gqlToEs(node) {
   // map from gql AST Node to one eslint understands

@@ -1,24 +1,25 @@
-"use strict";
+'use strict';
 
+// TODO: configs?
 module.exports = {
   rules: {
-    get "validate-imports"() {
-      return require("./rules/validate-imports");
+    get 'validate-imports'() {
+      return require('./rules/validate-imports');
     },
   },
 
   // TODO:
   meta: {
-    type: "",
+    type: '',
 
     docs: {
-      description: "linting for fragments and importable fragments",
-      category: "",
+      description: 'linting for fragments and importable fragments',
+      category: '',
       recommended: true,
-      url: "",
+      url: '',
     },
 
-    fixable: "",
+    fixable: '',
     schema: [], // no options
   },
 

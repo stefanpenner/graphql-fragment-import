@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 
-const { expect } = require("chai");
+const { expect } = require('chai');
 
-describe("parse-imports", function () {
-  const parseImports = require("../../eslint-plugin/parse-imports");
-  it("works", function () {
-    expect(parseImports("")).to.eql([]);
+describe('parse-imports', function () {
+  const parseImports = require('../parse-imports');
+  it('works', function () {
+    expect(parseImports('')).to.eql([]);
     expect(parseImports('#import "_foo.graphql"')).to.deep.eql([
       {
-        type: "CommentImportStatement",
+        type: 'CommentImportStatement',
         name: {
-          type: "Name",
-          value: "_foo.graphql",
+          type: 'Name',
+          value: '_foo.graphql',
           loc: {
             start: {
               line: 1,
@@ -47,10 +47,10 @@ describe("parse-imports", function () {
 #import "_bar.graphql"`)
     ).to.eql([
       {
-        type: "CommentImportStatement",
+        type: 'CommentImportStatement',
         name: {
-          type: "Name",
-          value: "_foo.graphql",
+          type: 'Name',
+          value: '_foo.graphql',
           loc: {
             start: {
               line: 1,
@@ -80,10 +80,10 @@ describe("parse-imports", function () {
         tokens: [],
       },
       {
-        type: "CommentImportStatement",
+        type: 'CommentImportStatement',
         name: {
-          type: "Name",
-          value: "_bar.graphql",
+          type: 'Name',
+          value: '_bar.graphql',
           loc: {
             start: {
               line: 2,
