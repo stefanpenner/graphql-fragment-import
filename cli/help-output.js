@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-const chalk = require("chalk");
-const terminalLink = require("terminal-link");
-const pkg = require("../package.json");
+const chalk = require('chalk');
+const terminalLink = require('terminal-link');
+const pkg = require('./package.json');
 
 module.exports = chalk`
-{bold ${terminalLink("graphql-fragment-import", pkg.homepage)}}
+{bold ${terminalLink('graphql-fragment-import', pkg.homepage)}}
 
   {bold Usage}
     {gray $} {cyan graphql-fragment-import <input-file>}

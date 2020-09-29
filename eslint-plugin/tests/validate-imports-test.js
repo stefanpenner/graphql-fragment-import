@@ -8,7 +8,7 @@ const { expect } = require('chai');
 describe('eslint/validate-imports', function () {
   let project, tester;
   beforeEach(function () {
-    project = new Project('my-fake-project', '0.0.0', (project) => {
+    project = new Project('my-fake-project', '0.0.0', project => {
       project.files['_my-person.graphql'] = `
 fragment myPerson on People {
   id
@@ -26,6 +26,13 @@ query foo {
   bar {
     ...myPerson
   }
+}`;
+
+      project.files['test-file-fragment-with-import.graphql'] = `
+#import './_my-person.graphql'
+fragment foo on People {
+  ...myPerson
+  someOtherProperty
 }`;
 
       project.files['no-such-import.graphql'] = `
@@ -54,7 +61,7 @@ query foo {
   }
 }`;
 
-      project.addDependency('some-dependency', '1.0.0', (addon) => {
+      project.addDependency('some-dependency', '1.0.0', addon => {
         addon.files['_fragment.graphql'] = `
 fragment MyFragment on Fruit {
   id
@@ -114,7 +121,7 @@ query foo {
   });
 
   it('fails if no parser is provided', function () {
-    const rule = require('../../eslint-plugin/rules/validate-imports');
+    const rule = require('../rules/validate-imports');
 
     expect(() =>
       rule.create({
@@ -124,7 +131,7 @@ query foo {
         parserServices: {
           createTypeInfo() {},
         },
-      })
+      }),
     ).to.throw(/invalid parser detected/);
 
     expect(() =>
@@ -136,7 +143,7 @@ query foo {
           createTypeInfo() {},
           getFragmentDefinitionsFromSource() {},
         },
-      })
+      }),
     ).to.not.throw();
   });
 
@@ -144,7 +151,7 @@ query foo {
     it(` lints ${_filename} as valid`, function () {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
-      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
+      tester.run(_filename, require('../rules/validate-imports'), {
         valid: [
           {
             code,
@@ -161,7 +168,7 @@ query foo {
       const filename = `${project.baseDir}/${_filename}`;
       const code = fs.readFileSync(filename, 'utf8');
 
-      tester.run(_filename, require('../../eslint-plugin/rules/validate-imports'), {
+      tester.run(_filename, require('../rules/validate-imports'), {
         valid: [],
         invalid: [
           {
@@ -175,13 +182,16 @@ query foo {
   }
 
   valid.skip = function (rulePath) {
+    // eslint-disable-next-line mocha/no-skipped-tests
     it.skip(rulePath);
   };
   invalid.skip = function (rulePath) {
+    // eslint-disable-next-line mocha/no-skipped-tests
     it.skip(rulePath);
   };
 
   valid('test-file.graphql');
+  valid('test-file-fragment-with-import.graphql');
   invalid('no-such-import.graphql', [
     {
       type: 'CommentImportStatement',

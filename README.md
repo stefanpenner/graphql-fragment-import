@@ -2,7 +2,7 @@
 
 NOTE: Module is WIP, it is not yet released, and subject to change.
 
-This node_module is two things:
+This node module is two things:
 
 * an executable to perform graphql module importing
 * a library to reuse the underlying code in other libraries programmatically (linting, build tools etc)

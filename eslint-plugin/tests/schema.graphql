@@ -1,6 +1,7 @@
 type People {
   id: String!
   name: String!
+  someOtherProperty: Int
 }
 
 type Fruit {

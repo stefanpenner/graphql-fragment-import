@@ -9,11 +9,13 @@ fragment Apple on Fruit {
   id
   name
   ...Kiwi
+  # eslint-disable-next-line @graphql-fragment-import/validate-imports
   ...Missing
 }
 
 query queryName {
   allFruit {
+    # eslint-disable-next-line @graphql-fragment-import/validate-imports
     ...Missing
     ...Apple
     ...Orange # should exist

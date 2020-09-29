@@ -9,6 +9,9 @@ module.exports = {
   env: {
     node: true,
   },
+  rules: {
+    'node/shebang': 'off',
+  },
   overrides: [
     {
       env: { mocha: true },
@@ -18,6 +21,7 @@ module.exports = {
       rules: {
         'node/no-unpublished-require': 'off',
         'mocha/no-setup-in-describe': 'off',
+        'mocha/no-hooks-for-single-case': 'off',
       },
     },
   ],
