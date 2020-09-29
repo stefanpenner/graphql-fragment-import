@@ -254,17 +254,17 @@ query foo {
     },
   ]);
 
-  // invalid('unused-some-import.graphql', [
-  //   {
-  //     type: 'CommentImportStatement',
-  //     message: `import unused`,
+  invalid('unused-some-import.graphql', [
+    {
+      type: 'CommentImportStatement',
+      message: `import unused`,
 
-  //     line: 2,
-  //     column: 1,
-  //     endLine: 2,
-  //     endColumn: 31,
-  //   },
-  // ]);
+      line: 3,
+      column: 1,
+      endLine: 3,
+      endColumn: 30,
+    },
+  ]);
 
   invalid('unused-fragment.graphql', [
     {

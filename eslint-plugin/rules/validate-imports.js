@@ -19,7 +19,7 @@ module.exports = {
     },
   },
   create(context) {
-    const VALID_IMPORTS = [];
+    const VALID_IMPORTS = new Map();
     const SPREAD_FRAGMENTS = Object.create(null);
     const FRAGMENT_DEFINITIONS = Object.create(null);
     const FILE_NAME = context.getFilename();
@@ -82,7 +82,7 @@ module.exports = {
         }
       }
 
-      VALID_IMPORTS.push(node);
+      VALID_IMPORTS.set(node.loc.start.line, node);
     }
 
     function FragmentDefinition(node) {
@@ -119,50 +119,64 @@ module.exports = {
 
       'Document:exit'() {
         const filename = context.getFilename();
-        let FRAGMENT_DEFINITIONS_WITH_INLINED_IMPORTS;
+        let FRAGMENT_TO_IMPORT_LINE;
+        let IMPORTED_FRAGMENTS;
+        let IMPORT_LINE_USED;
 
-        if (VALID_IMPORTS.length > 0) {
-          const source = inlineImports(context.getSourceCode().text, {
-            basedir: path.dirname(filename),
-            throwIfImportNotFound: false,
-          });
+        if (VALID_IMPORTS.size > 0) {
+          FRAGMENT_TO_IMPORT_LINE = Object.create(null);
+          IMPORTED_FRAGMENTS = Object.create(null);
+          IMPORT_LINE_USED = new Map();
 
-          FRAGMENT_DEFINITIONS_WITH_INLINED_IMPORTS = Object.create(null);
+          const importLinesToInlinedSource = inlineImports.lineToImports(
+            context.getSourceCode().text,
+            {
+              basedir: path.dirname(filename),
+              throwIfImportNotFound: false,
+            },
+          );
 
-          for (const fragment of context.parserServices.getFragmentDefinitionsFromSource(source)) {
-            FRAGMENT_DEFINITIONS_WITH_INLINED_IMPORTS[fragment.name.value] = fragment;
+          for (const [lineNumber, source] of importLinesToInlinedSource) {
+            // initially we don't know that it's used
+            // we'll mark the used ones as true
+            // whatever false remains are unused
+            IMPORT_LINE_USED.set(lineNumber, false);
+
+            for (const fragment of context.parserServices.getFragmentDefinitionsFromSource(
+              source,
+            )) {
+              FRAGMENT_TO_IMPORT_LINE[fragment.name.value] = lineNumber;
+              IMPORTED_FRAGMENTS[fragment.name.value] = fragment;
+            }
           }
 
           // short-circuit no SPREAD_FRAGMENTS but we have imports, all imports
           // are then unused
           if (Object.keys(SPREAD_FRAGMENTS).length === 0) {
-            for (const node of VALID_IMPORTS) {
+            for (const node of VALID_IMPORTS.values()) {
               context.report({
                 message: `import unused`,
                 node,
               });
             }
-          } else {
-            // for(const {node, type } of SPREAD_FRAGMENTS) {
-            //   let fragmentName = node.name.value;
-            // }
-            // TODO: non-short circuit case for unused imports
           }
         }
-        const ALL_FRAGMENTS = FRAGMENT_DEFINITIONS_WITH_INLINED_IMPORTS || FRAGMENT_DEFINITIONS;
+
         const USED_FRAGMENT_DEFINITIONS = new Set();
 
         for (const spreads of Object.values(SPREAD_FRAGMENTS)) {
           for (const { node, type } of spreads) {
-            if (ALL_FRAGMENTS[node.name.value]) {
+            const name = node.name.value;
+            if (IMPORTED_FRAGMENTS[name] || FRAGMENT_DEFINITIONS[name]) {
               if (FRAGMENT_DEFINITIONS[node.name.value]) {
                 USED_FRAGMENT_DEFINITIONS.add(FRAGMENT_DEFINITIONS[node.name.value]);
-                // the fragment is defined in the current file (not imported), and we can
-                // rely on <rule-name> to handle this case for us.
                 continue;
               }
+              let lineNumber = FRAGMENT_TO_IMPORT_LINE[name];
+              IMPORT_LINE_USED.set(lineNumber, true);
+
               let fragmentDefinitionTypeCondition =
-                ALL_FRAGMENTS[node.name.value].typeCondition.name.value;
+                IMPORTED_FRAGMENTS[name].typeCondition.name.value;
               let fragmentSpreadTypeName = type.name;
 
               if (fragmentSpreadTypeName !== fragmentDefinitionTypeCondition) {
@@ -197,6 +211,18 @@ module.exports = {
                 node,
               });
             });
+          }
+        }
+
+        // don't double count from the short-circuited version above
+        if (Object.keys(SPREAD_FRAGMENTS).length > 0) {
+          for (let [lineNumber, isUsed] of IMPORT_LINE_USED) {
+            if (isUsed === false) {
+              context.report({
+                message: 'import unused',
+                node: VALID_IMPORTS.get(lineNumber),
+              });
+            }
           }
         }
       },
