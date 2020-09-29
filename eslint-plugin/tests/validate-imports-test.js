@@ -33,7 +33,14 @@ query foo {
 fragment foo on People {
   ...myPerson
   someOtherProperty
-}`;
+}
+
+query {
+  bar {
+    ...foo
+  }
+}
+`;
 
       project.files['no-such-import.graphql'] = `
 #import './_no-such-file.graphql'
@@ -51,6 +58,30 @@ query foo {
     id
   }
 }`;
+
+      project.files['unused-some-import.graphql'] = `
+#import './_my-person.graphql'
+#import './_my-fruit.graphql'
+
+query foo {
+  bar {
+    id
+    ...myPerson
+  }
+}`;
+
+      project.files['unused-fragment.graphql'] = `
+fragment NotGonnaUseThis on People {
+  id
+}
+
+query {
+  bar {
+    name
+  }
+}
+    `;
+
       project.files['missing-fragments.graphql'] = `
 #import './_my-person.graphql'
 query foo {
@@ -220,6 +251,29 @@ query foo {
       column: 1,
       endLine: 2,
       endColumn: 31,
+    },
+  ]);
+
+  // invalid('unused-some-import.graphql', [
+  //   {
+  //     type: 'CommentImportStatement',
+  //     message: `import unused`,
+
+  //     line: 2,
+  //     column: 1,
+  //     endLine: 2,
+  //     endColumn: 31,
+  //   },
+  // ]);
+
+  invalid('unused-fragment.graphql', [
+    {
+      type: 'FragmentDefinition',
+      message: 'Fragment "NotGonnaUseThis" is never used',
+      line: 2,
+      column: 2,
+      endLine: 4,
+      endColumn: 2,
     },
   ]);
 

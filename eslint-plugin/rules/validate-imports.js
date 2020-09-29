@@ -11,6 +11,7 @@ module.exports = {
     messages: {
       badFragmentSpread:
         'Fragment "{{ fragment }}" cannot be spread here as objects of type "{{ objectType }}" can never be of type "{{ fragmentType }}"',
+      unusedFragmentDefinition: 'Fragment "{{ fragmentName }}" is never used',
     },
     docs: {
       description: 'ensure imports are valid',
@@ -131,24 +132,31 @@ module.exports = {
           for (const fragment of context.parserServices.getFragmentDefinitionsFromSource(source)) {
             FRAGMENT_DEFINITIONS_WITH_INLINED_IMPORTS[fragment.name.value] = fragment;
           }
-        }
 
-        const ALL_FRAGMENTS = FRAGMENT_DEFINITIONS_WITH_INLINED_IMPORTS || FRAGMENT_DEFINITIONS;
-        // short-circuit no SPREAD_FRAGMENTS but we have imports, all imports
-        // are then unused
-        if (Object.keys(SPREAD_FRAGMENTS).length === 0 && VALID_IMPORTS.length > 0) {
-          for (const node of VALID_IMPORTS) {
-            context.report({
-              message: `import unused`,
-              node,
-            });
+          // short-circuit no SPREAD_FRAGMENTS but we have imports, all imports
+          // are then unused
+          if (Object.keys(SPREAD_FRAGMENTS).length === 0) {
+            for (const node of VALID_IMPORTS) {
+              context.report({
+                message: `import unused`,
+                node,
+              });
+            }
+          } else {
+            // for(const {node, type } of SPREAD_FRAGMENTS) {
+            //   let fragmentName = node.name.value;
+            // }
+            // TODO: non-short circuit case for unused imports
           }
         }
+        const ALL_FRAGMENTS = FRAGMENT_DEFINITIONS_WITH_INLINED_IMPORTS || FRAGMENT_DEFINITIONS;
+        const USED_FRAGMENT_DEFINITIONS = new Set();
 
         for (const spreads of Object.values(SPREAD_FRAGMENTS)) {
           for (const { node, type } of spreads) {
             if (ALL_FRAGMENTS[node.name.value]) {
               if (FRAGMENT_DEFINITIONS[node.name.value]) {
+                USED_FRAGMENT_DEFINITIONS.add(FRAGMENT_DEFINITIONS[node.name.value]);
                 // the fragment is defined in the current file (not imported), and we can
                 // rely on <rule-name> to handle this case for us.
                 continue;
@@ -175,6 +183,20 @@ module.exports = {
                 node,
               });
             }
+          }
+        }
+
+        for (const nodes of Object.values(FRAGMENT_DEFINITIONS)) {
+          if (!USED_FRAGMENT_DEFINITIONS.has(nodes)) {
+            nodes.forEach(node => {
+              context.report({
+                messageId: 'unusedFragmentDefinition',
+                data: {
+                  fragmentName: node.name.value,
+                },
+                node,
+              });
+            });
           }
         }
       },
