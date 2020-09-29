@@ -8,11 +8,13 @@
     "example"
   ],
   "devDependencies": {
+    "@eslint-ast/eslint-plugin-graphql": "^1.0.3",
     "eslint": "^7.6.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "mocha": "^8.1.3",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.2"
   },
