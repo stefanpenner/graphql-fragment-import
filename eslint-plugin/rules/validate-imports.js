@@ -5,6 +5,10 @@ const inlineImports = require('@graphql-fragment-import/lib/inline-imports');
 const parseImports = require('../parse-imports');
 const pathContainsDirectory = require('../path-contains-directory');
 
+const EMPTY_OBJECT = Object.freeze(Object.create(null));
+// conceptually a frozen map, but we can't actually freeze maps
+const EMPTY_MAP = new Map();
+
 // this rule errors if we have more then one top level query
 module.exports = {
   meta: {
@@ -119,9 +123,11 @@ module.exports = {
 
       'Document:exit'() {
         const filename = context.getFilename();
-        let FRAGMENT_TO_IMPORT_LINE;
-        let IMPORTED_FRAGMENTS;
-        let IMPORT_LINE_USED;
+        const basename = path.basename(filename);
+        const isPartial = basename.length > 0 && basename.charAt(0) === '_';
+        let FRAGMENT_TO_IMPORT_LINE = EMPTY_OBJECT;
+        let IMPORTED_FRAGMENTS = EMPTY_OBJECT;
+        let IMPORT_LINE_USED = EMPTY_MAP;
 
         if (VALID_IMPORTS.size > 0) {
           FRAGMENT_TO_IMPORT_LINE = Object.create(null);
@@ -200,28 +206,30 @@ module.exports = {
           }
         }
 
-        for (const nodes of Object.values(FRAGMENT_DEFINITIONS)) {
-          if (!USED_FRAGMENT_DEFINITIONS.has(nodes)) {
-            nodes.forEach(node => {
-              context.report({
-                messageId: 'unusedFragmentDefinition',
-                data: {
-                  fragmentName: node.name.value,
-                },
-                node,
+        if (isPartial === false) {
+          for (const nodes of Object.values(FRAGMENT_DEFINITIONS)) {
+            if (!USED_FRAGMENT_DEFINITIONS.has(nodes)) {
+              nodes.forEach(node => {
+                context.report({
+                  messageId: 'unusedFragmentDefinition',
+                  data: {
+                    fragmentName: node.name.value,
+                  },
+                  node,
+                });
               });
-            });
+            }
           }
-        }
 
-        // don't double count from the short-circuited version above
-        if (Object.keys(SPREAD_FRAGMENTS).length > 0) {
-          for (let [lineNumber, isUsed] of IMPORT_LINE_USED) {
-            if (isUsed === false) {
-              context.report({
-                message: 'import unused',
-                node: VALID_IMPORTS.get(lineNumber),
-              });
+          // don't double count from the short-circuited version above
+          if (Object.keys(SPREAD_FRAGMENTS).length > 0) {
+            for (let [lineNumber, isUsed] of IMPORT_LINE_USED) {
+              if (isUsed === false) {
+                context.report({
+                  message: 'import unused',
+                  node: VALID_IMPORTS.get(lineNumber),
+                });
+              }
             }
           }
         }

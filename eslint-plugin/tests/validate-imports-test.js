@@ -223,6 +223,8 @@ query foo {
 
   valid('test-file.graphql');
   valid('test-file-fragment-with-import.graphql');
+  valid('_my-person.graphql');
+  valid('_my-fruit.graphql');
   invalid('no-such-import.graphql', [
     {
       type: 'CommentImportStatement',

@@ -1,6 +1,7 @@
 #import "./_orange.graphql"
 #import "./_banana.graphql"
 
+# eslint-disable-next-line @graphql-fragment-import/validate-imports
 fragment NeverUsed on Fruit {
   id
 }
