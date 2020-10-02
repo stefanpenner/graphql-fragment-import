@@ -21,7 +21,6 @@
     "chai": "^4.2.0",
     "mocha": "^8.1.1",
     "eslint": "^7.9.0",
-    "fixturify-project": "^2.1.0",
     "fixturify-project": "^2.1.0"
   }
 }
