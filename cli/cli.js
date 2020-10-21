@@ -19,6 +19,10 @@ const cli = meow(require('./help-output'), {
       type: 'string',
       alias: 'd',
     },
+    'import-resolver': {
+      type: 'string',
+      alias: 'ir',
+    },
   },
 });
 
@@ -26,17 +30,21 @@ if ('output' in cli.flags && 'outputDir' in cli.flags) {
   throw new Error('Cannot have both --output and --output-dir specified');
 }
 
-function processFile(input) {
+function processFile(input, { resolver }) {
   const filename = path.resolve(input);
   const basedir = path.dirname(filename);
   const content = fs.readFileSync(filename, 'UTF8');
 
-  return inlineImports(content, { basedir });
+  return inlineImports(content, { resolveImport: resolver, resolveOptions: { basedir } });
 }
 
 if (cli.input.length === 0) {
   cli.showHelp(1);
 } else if (cli.input.length === 1) {
+  let resolver;
+  if ('importResolver' in cli.flags) {
+    resolver = require(cli.flags.importResolver);
+  }
   const input = cli.input[0];
   const entry = fs.statSync(input);
   // handle scenario, were we walk an entire directory which may contain
@@ -62,7 +70,7 @@ if (cli.input.length === 0) {
       const outputFileName = path.resolve(`${cli.flags.outputDir}/${queryFile}`);
       const inputFileName = path.resolve(`${cli.input}/${queryFile}`);
       const dirname = path.dirname(outputFileName);
-      const content = processFile(inputFileName);
+      const content = processFile(inputFileName, { resolver });
 
       console.log(chalk`  {green [processed]} ${queryFile} -> ${outputFileName}`);
       try {
@@ -86,7 +94,7 @@ if (cli.input.length === 0) {
       );
     }
 
-    const output = processFile(input);
+    const output = processFile(input, { resolver });
     if (cli.flags.output) {
       fs.writeFileSync(cli.flags.output, output);
     } else {

@@ -1,37 +1,36 @@
 # graphql-fragment-import ![CI](https://github.com/stefanpenner/grapqhl-fragment-import/workflows/CI/badge.svg)
 
-NOTE: Module is WIP, it is not yet released, and subject to change.
+This monorepo contains three packages:
 
-This node module is two things:
+* `@graphql-fragment-import/cli` - an executable to perform graphql module importing
+* `@graphql-fragment-import/lib` - a library to reuse the underlying code in other libraries programmatically (linting, build tools etc)
+* `@graphql-fragment-import/eslint-plugin` - an ESLint plugin that augments `@eslint-ast/graphql` with fragment import support
 
-* an executable to perform graphql module importing
-* a library to reuse the underlying code in other libraries programmatically (linting, build tools etc)
 
-
-# Import syntax
-
+## Import syntax
 
 ```graphql
 
 #import "./_my-fragment.graphql"
-#import './_my-other-fragment.graphql'
-#import "some-node-module/_its-fragment.graphql"
+#import '../../_my-other-fragment.graphql'
+#import "some-package/_its-fragment.graphql"
 ```
 
 
-# Usage (as an executable)
+## Usage (as an executable)
 ```sh
 
-npx graphql-fragment-import <file>
-npx graphql-fragment-import <file> -o <output-file>
-npx graphql-fragment-import <directory> -d <output-directory>
+npx @graphql-fragment-import/cli <file>
+npx @graphql-fragment-import/cli <file> -o <output-file>
+npx @graphql-fragment-import/cli <directory> -d <output-directory>
+npx @graphql-fragment-import/cli <file> -ir <custom-import-resolver>
 ```
 
-# Usage (as a library)
+## Usage (as a library)
 
 
 ```sh
-yarn add graphql-fragment-import
+yarn add @graphql-fragment-import/lib
 ```
 
 or
@@ -43,15 +42,45 @@ npm add --save graphql-fragment-import
 ```js
 'use strict';
 
-const fragmentImport = require('graphql-fragment-import');
+const fragmentImport = require('@graphql-fragment-import/lib/inline-imports');
 
 const output = fragmentImport(fileContents, {
-  basedir /* required: specifies where to start resolving imported fragments from */,
-  resolve /* optional: allows the caller to provide an alternative resolution algorithm */,
+  resolveImport /* optional: allows the caller to provide an alternative resolution algorithm */,
+  resolveOptions: {
+    basedir /* required: specifies where to start resolving imported fragments from */,
+    ...args /* any other resolve options are passed through to `resolveImport` when resolving imports */
+  },
   fs /* optiona: allows for the caller to provide an alternative implementation of node's fs module */
 });
 
 output; // contains the grapqhl file, with all imports having been inlined
+```
+
+## Usage (ESLint)
+
+```js
+// .eslintrc
+module.exports = {
+  parser: '@eslint-ast/eslint-plugin-graphql/parser',
+  parserOptions: {
+    schema: 'path/to/schema.graphql',
+  },
+  plugins: ['@eslint-ast/graphql', '@graphql-fragment-import'],
+  extends: [
+    'plugin:@eslint-ast/graphql/recommended',
+    'plugin:@graphql-fragment-import/recommended',
+  ],
+  rules: {
+    '@graphql-fragment-import/validate-imports': [
+      'error',
+      // Options only need to be specified if you need a custom import resolver
+      // The default is to use require.resolve (i.e. the node resolution algorithm)
+      {
+        importResolver: require.resolve('ember-cli-addon-aware-resolver'),
+      },
+    ],
+  },
+};
 ```
 
 # Example importable fragments
@@ -61,7 +90,7 @@ Given the following files
 ```graphql
 # // file: _my-fragment.graphql
 
-fragment MyFragment {
+fragment MyFragment on SomeType {
   fieldC
 }
 ```
@@ -82,7 +111,7 @@ query {
 results in:
 
 ```sh
-npx graphql-fragment-import ./my-query.graphql
+npx @graphql-fragment-import/cli ./my-query.graphql
 > fragment MyFragment {
 >   fieldC
 > }

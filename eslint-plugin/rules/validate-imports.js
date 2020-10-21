@@ -9,6 +9,8 @@ const EMPTY_OBJECT = Object.freeze(Object.create(null));
 // conceptually a frozen map, but we can't actually freeze maps
 const EMPTY_MAP = new Map();
 
+const ERR_PREFIX = `[graphql-fragment-import/validate-imports]`;
+
 // this rule errors if we have more then one top level query
 module.exports = {
   meta: {
@@ -16,13 +18,43 @@ module.exports = {
       badFragmentSpread:
         'Fragment "{{ fragment }}" cannot be spread here as objects of type "{{ objectType }}" can never be of type "{{ fragmentType }}"',
       unusedFragmentDefinition: 'Fragment "{{ fragmentName }}" is never used',
+      fileNotFound: 'no such file: "{{ importIdentifier }}" starting at: "{{ basedir }}"',
     },
     docs: {
       description: 'ensure imports are valid',
       category: 'problem',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          importResolver: {
+            type: 'string',
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
   },
   create(context) {
+    let resolveImport;
+
+    let importResolver =
+      Array.isArray(context.options) &&
+      context.options.length > 0 &&
+      context.options[0].importResolver;
+    if (typeof importResolver === 'string') {
+      if (!path.isAbsolute(importResolver)) {
+        throw new Error(
+          `${ERR_PREFIX} option "importResolver" must be an absolute path, not "${importResolver}"`,
+        );
+      }
+
+      resolveImport = require(importResolver);
+    } else {
+      resolveImport = require('resolve').sync;
+    }
+
     const VALID_IMPORTS = new Map();
     const SPREAD_FRAGMENTS = Object.create(null);
     const FRAGMENT_DEFINITIONS = Object.create(null);
@@ -31,7 +63,7 @@ module.exports = {
     const typeInfo = context.parserServices.createTypeInfo();
     if (typeof context.parserServices.getFragmentDefinitionsFromSource !== 'function') {
       throw new Error(
-        `[graphql-fragment-import/validate-imports] invalid parser detected, please ensure the relevant eslint parser is: '@eslint-ast/eslint-plugin-graphql/parser'`,
+        `${ERR_PREFIX} invalid parser detected, please ensure the relevant eslint parser is: '@eslint-ast/eslint-plugin-graphql/parser'`,
       );
     }
 
@@ -71,22 +103,23 @@ module.exports = {
         return;
       }
 
-      // TODO: use faster / memoized implementation
-      // TODO: configurable resolution strategy
       try {
-        require('resolve').sync(importIdentifier, { basedir });
+        resolveImport(importIdentifier, { basedir });
+        VALID_IMPORTS.set(node.loc.start.line, node);
       } catch (e) {
         if (typeof e === 'object' && e !== null && e.code === 'MODULE_NOT_FOUND') {
           context.report({
-            message: `no such file: '${importIdentifier}' starting at: '${basedir}'`,
+            messageId: 'fileNotFound',
+            data: {
+              importIdentifier,
+              basedir,
+            },
             node,
           });
         } else {
           throw e;
         }
       }
-
-      VALID_IMPORTS.set(node.loc.start.line, node);
     }
 
     function FragmentDefinition(node) {
@@ -99,11 +132,18 @@ module.exports = {
       let type = typeInfo.getType();
       // we grab all in-file fragment spread definitions, grouped by name for later validation
       SPREAD_FRAGMENTS[node.name.value] = SPREAD_FRAGMENTS[node.name.value] || [];
+      // resolve non-null and list types
+      // e.g.
+      // type Query {
+      //  books: [Book!]!
+      // }
+      // gets a NonNull ofType List ofType NonNull ofType Book
+      while (typeof type.ofType === 'object' && type.ofType !== null) {
+        type = type.ofType;
+      }
       SPREAD_FRAGMENTS[node.name.value].push({
         node,
-        // type.ofType for fragment spreads in queries
-        // type for fragment spreads in fragment definitions
-        type: type.ofType || type,
+        type,
       });
     }
 
@@ -137,7 +177,10 @@ module.exports = {
           const importLinesToInlinedSource = inlineImports.lineToImports(
             context.getSourceCode().text,
             {
-              basedir: path.dirname(filename),
+              resolveOptions: {
+                basedir: path.dirname(filename),
+              },
+              resolveImport,
               throwIfImportNotFound: false,
             },
           );
