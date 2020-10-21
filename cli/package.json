@@ -23,6 +23,7 @@
     "eslint": "^7.9.0",
     "fixturify-project": "^2.1.0"
   },
-  "homepage": "https://github.com/stefanpenner/@graphql-fragment-import"
+  "homepage": "https://github.com/stefanpenner/@graphql-fragment-import",
+  "license": "MIT"
 }
 
