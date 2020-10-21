@@ -237,4 +237,63 @@ query {
       );
     });
   });
+
+  describe('custom import resolution', function () {
+    let basedir;
+
+    beforeEach(function () {
+      let project = new FixturifyProject('test-project', '1.0.0', project => {
+        project.files['query.graphql'] = `
+#import "./_relative-fragment.graphql"
+#import "custom-import-package/_go.graphql"
+query myquery {
+  books {
+    ...FragmentRelative
+    ...FragmentPackage
+  }
+}
+`;
+        project.files['custom-resolver.js'] = `
+module.exports = function(identifier, { basedir }) {
+  return require.resolve('my-dep/_fragment.graphql');
+}
+`;
+        project.addDependency('my-dep', '1.0.0', dep => {
+          dep.files['_fragment.graphql'] = `
+fragment FragmentPackage on Book {
+  isbn
+  sales
+}
+`;
+        });
+      });
+
+      project.writeSync();
+      basedir = project.baseDir;
+    });
+
+    it('supports --import-resolver [-ir]', async function () {
+      const childProcess = await execa('node', [
+        cli,
+        `${basedir}/query.graphql`,
+        '--import-resolver',
+        `${basedir}/custom-resolver`,
+      ]);
+      expect(childProcess.stderr).to.eql(``);
+      expect(childProcess.stdout).to.eql(`
+
+fragment FragmentPackage on Book {
+  isbn
+  sales
+}
+
+query myquery {
+  books {
+    ...FragmentRelative
+    ...FragmentPackage
+  }
+}
+`);
+    });
+  });
 });

@@ -14,6 +14,7 @@ module.exports = chalk`
   {bold Options}
     {cyan --output, -o} specify an output file {italic [by default we print to stdout]}
     {cyan --output-dir, -d} specify an output directory {italic [required with directory input]}
+    {cyan --import-resolver, -ir} specify a custom resolver for import statements
 
   {bold Examples}
     {gray $} {cyan  graphql-fragment-import ./file.graphql}
