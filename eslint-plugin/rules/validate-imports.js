@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const inlineImports = require('@graphql-fragment-import/lib/inline-imports');
+const gatherFragmentImportsForContext = require('../gather-fragment-imports-for-context');
 const parseImports = require('../parse-imports');
 const pathContainsDirectory = require('../path-contains-directory');
 
@@ -174,28 +174,17 @@ module.exports = {
           IMPORTED_FRAGMENTS = Object.create(null);
           IMPORT_LINE_USED = new Map();
 
-          const importLinesToInlinedSource = inlineImports.lineToImports(
-            context.getSourceCode().text,
-            {
-              resolveOptions: {
-                basedir: path.dirname(filename),
-              },
-              resolveImport,
-              throwIfImportNotFound: false,
-            },
-          );
+          const lineToFragmentNameToBucket = gatherFragmentImportsForContext(context, false);
 
-          for (const [lineNumber, source] of importLinesToInlinedSource) {
+          for (const [lineNumber, fragmentNameToFragment] of lineToFragmentNameToBucket.entries()) {
             // initially we don't know that it's used
             // we'll mark the used ones as true
             // whatever false remains are unused
             IMPORT_LINE_USED.set(lineNumber, false);
 
-            for (const fragment of context.parserServices.getFragmentDefinitionsFromSource(
-              source,
-            )) {
-              FRAGMENT_TO_IMPORT_LINE[fragment.name.value] = lineNumber;
-              IMPORTED_FRAGMENTS[fragment.name.value] = fragment;
+            for (const [fragmentName, fragment] of fragmentNameToFragment.entries()) {
+              FRAGMENT_TO_IMPORT_LINE[fragmentName] = lineNumber;
+              IMPORTED_FRAGMENTS[fragmentName] = fragment;
             }
           }
 

@@ -39,6 +39,10 @@ or
 npm add --save graphql-fragment-import
 ```
 
+### Combining all imports including transient imports in one string
+You can use the function exported from `@graphql-fragment-import/lib/inline-imports` to combine all the fragment definitions
+imported directly and transitively in a `graphql` file.
+
 ```js
 'use strict';
 
@@ -55,6 +59,50 @@ const output = fragmentImport(fileContents, {
 
 output; // contains the grapqhl file, with all imports having been inlined
 ```
+
+In the code example above, `fileContents` is the source code of a .graphql file. The return value is graphql source code
+with all the fragment definitions in it from all the various files imported.
+
+### Helper function for parsing imports for your eslint rule
+You can use one of the function exported from `@graphql-fragment-import/lib/gather-fragment-imports` to find and parse all
+fragment definitions into FragmentDefinition nodes (for eslint) by import line number.
+
+Here's an example of doing so in an eslint rule.
+
+```javascript
+const { gatherFragmentImportsForContext } = require('@graphql-fragment-import/lib/gather-fragment-imports');
+
+{
+  // eslint rule
+  create(context)
+  {
+    return {
+      'Document:exit'() {
+        /**
+         * lineToFragmentNameToBucket is an object whose keys are line numbers and values are objects whose keys are
+         * the fragment names and the parsed eslint node:
+         * {
+         *     1: {
+         *         FooBar: FragmentDefinition,
+         *         Bar: FragmentDefinition
+         *     }
+         * }
+         */
+        const lineToFragmentNameToBucket = gatherFragmentImportsForContext(context, false);
+
+        for (const [lineNumber, fragmentNameToFragment] of Object.entries(lineToFragmentNameToBucket)) {
+          // fragmentName is a string and fragment is the object returned by `fragmentParserGenerator`
+          for (const [fragmentName, fragment] of Object.entries(fragmentNameToFragment)) {
+            // Do something
+          }
+        }
+      }
+    }
+  }
+}
+```
+Your consumer projects will need to hav the `importResolver` and parser setup like configuration in `.eslintrc` provided
+below in the "Usage (ESLint)" section.
 
 ## Usage (ESLint)
 
