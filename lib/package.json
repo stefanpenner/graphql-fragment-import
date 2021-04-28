@@ -1,6 +1,6 @@
 {
   "name": "@graphql-fragment-import/lib",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "scripts": {
     "test": "mocha --recursive tests",
     "test:debug": "mocha --inspect-brk --recursive tests"
