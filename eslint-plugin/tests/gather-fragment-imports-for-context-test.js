@@ -12,6 +12,7 @@ function* fakeParser(src) {
       name: {
         value: fragmentSnippet[2],
       },
+      loc: {},
     };
   }
 }
@@ -44,8 +45,24 @@ describe('gather-fragment-imports-for-context', function () {
     const context = createFakeContext('#import "./_orange.graphql"', '../../example/file.graphql');
 
     const fragments = new Map([
-      ['Orange', { name: { value: 'Orange' } }],
-      ['Kiwi', { name: { value: 'Kiwi' } }],
+      [
+        'Orange',
+        {
+          name: { value: 'Orange' },
+          loc: {
+            filename: path.join(__dirname, '../../example/_orange.graphql'),
+          },
+        },
+      ],
+      [
+        'Kiwi',
+        {
+          name: { value: 'Kiwi' },
+          loc: {
+            filename: path.join(__dirname, '../../example/_orange.graphql'),
+          },
+        },
+      ],
     ]);
     expect(gatherFragmentImportsForContext(context, false)).to.deep.equal(
       new Map([[1, fragments]]),
