@@ -1,3 +1,12 @@
+## v1.2.1 (2022-02-03)
+
+#### :rocket: Enhancement
+* [#10](https://github.com/stefanpenner/graphql-fragment-import/pull/10) Have gatherFragmentImportsForContext include resolved filenames of imported files ([@grconrad](https://github.com/grconrad))
+
+#### Committers: 1
+- Richard Conrad ([@grconrad](https://github.com/grconrad))
+
+
 ## v1.2.0 (2021-04-28)
 
 #### :rocket: Enhancement
