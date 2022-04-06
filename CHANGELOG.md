@@ -1,3 +1,12 @@
+## v1.2.2 (2022-04-06)
+
+#### :bug: Bug Fix
+* [#11](https://github.com/stefanpenner/graphql-fragment-import/pull/11) Remove graphql dependency ([@asakusuma](https://github.com/asakusuma))
+
+#### Committers: 1
+- Asa Kusuma ([@asakusuma](https://github.com/asakusuma))
+
+
 ## v1.2.1 (2022-02-03)
 
 #### :rocket: Enhancement
