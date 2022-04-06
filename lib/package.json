@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "chalk": "^4.1.0",
-    "graphql": "^15.3.0",
     "meow": "^7.0.1",
     "mkdirp": "^1.0.4",
     "resolve": "^1.17.0",
