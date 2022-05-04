@@ -105,6 +105,7 @@ module.exports = {
 
       try {
         resolveImport(importIdentifier, { basedir });
+        console.log(node);
         VALID_IMPORTS.set(node.loc.start.line, node);
       } catch (e) {
         if (typeof e === 'object' && e !== null && e.code === 'MODULE_NOT_FOUND') {

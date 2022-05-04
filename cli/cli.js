@@ -2,7 +2,7 @@
 'use strict';
 
 const meow = require('meow');
-const inlineImports = require('@graphql-fragment-import/lib/inline-imports');
+const inlineImports = require('@graphql-fragment-import/lib/dist/inline-imports');
 const path = require('path');
 const fs = require('fs');
 const mkdirp = require('mkdirp');

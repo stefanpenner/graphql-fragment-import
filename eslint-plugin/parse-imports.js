@@ -1,6 +1,6 @@
 'use strict';
-const matchImport = require('@graphql-fragment-import/lib/match-import');
-const EOL_REGEXP = require('@graphql-fragment-import/lib/eol-regexp');
+const matchImport = require('@graphql-fragment-import/lib/dist/match-import').default;
+const EOL_REGEXP = require('@graphql-fragment-import/lib/dist/eol-regexp').default;
 
 module.exports = function parseImports(source) {
   const imports = [];
@@ -11,7 +11,7 @@ module.exports = function parseImports(source) {
     const match = matchImport(line);
 
     if (match) {
-      const value = match.importIdentifier;
+      const value = match;
       imports.push({
         type: 'CommentImportStatement',
         name: {

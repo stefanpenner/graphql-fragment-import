@@ -4,7 +4,7 @@ module.exports = {
     ecmaVersion: 2020,
     sourceType: 'module',
   },
-  plugins: ['node', 'prettier'],
+  plugins: ['node', 'prettier', '@typescript-eslint'],
   extends: ['eslint:recommended', 'plugin:node/recommended', 'plugin:prettier/recommended'],
   env: {
     node: true,
@@ -22,6 +22,23 @@ module.exports = {
         'node/no-unpublished-require': 'off',
         'mocha/no-setup-in-describe': 'off',
         'mocha/no-hooks-for-single-case': 'off',
+      },
+    },
+    {
+      files: ['**/*.ts'],
+      plugins: ['@typescript-eslint'],
+      extends: [
+        'plugin:@typescript-eslint/eslint-recommended',
+        'plugin:@typescript-eslint/recommended',
+      ],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+        project: './lib/tsconfig.json',
+      },
+      rules: {
+        'node/no-unsupported-features/es-syntax': 'off',
       },
     },
   ],

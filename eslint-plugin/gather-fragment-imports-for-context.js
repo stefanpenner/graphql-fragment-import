@@ -1,5 +1,6 @@
 const path = require('path');
-const gatherFragmentImports = require('@graphql-fragment-import/lib/gather-fragment-imports');
+const gatherFragmentImports = require('@graphql-fragment-import/lib/dist/gather-fragment-imports')
+  .default;
 
 /**
  * Wrapper function to setup most parameters from the context object to call gatherFragmentImports.
@@ -25,13 +26,13 @@ function gatherFragmentImportsForContext(context, throwIfImportNotFound) {
     resolveImport = require('resolve').sync;
   }
 
-  return gatherFragmentImports({
-    source: context.getSourceCode().text,
-    sourceLocation: context.getFilename(),
+  return gatherFragmentImports(
+    context.getSourceCode().text,
+    context.getFilename(),
     resolveImport,
-    fragmentParserGenerator: context.parserServices.getFragmentDefinitionsFromSource,
+    context.parserServices.getFragmentDefinitionsFromSource,
     throwIfImportNotFound,
-  });
+  );
 }
 
 module.exports = gatherFragmentImportsForContext;
