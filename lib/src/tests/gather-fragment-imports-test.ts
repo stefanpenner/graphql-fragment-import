@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import chai from 'chai';
 import path from 'path';
 import fs from 'fs';
-import gatherFragmentImports, { AugmentedFragmentDefinitionWithFileNameInLocation } from '../gather-fragment-imports';
+import gatherFragmentImports, {
+  AugmentedFragmentDefinitionWithFileNameInLocation,
+} from '../gather-fragment-imports';
 import FixturifyProject from 'fixturify-project';
 import { FragmentDefinitionNode } from 'graphql';
 import resolve from 'resolve';
@@ -10,19 +13,23 @@ const FRAGMENT_NAME_REGEX = /fragment (.*?) on/;
 function fakeParser(src: string): FragmentDefinitionNode[] {
   const match = src.match(FRAGMENT_NAME_REGEX);
   if (match && match.length > 1) {
-    return [{
-      name: {
-        value: match[1],
-      },
-      loc: {},
-    } as FragmentDefinitionNode]; // intentionally mis-cast to avoid mocking
+    return [
+      {
+        name: {
+          value: match[1],
+        },
+        loc: {},
+      } as FragmentDefinitionNode,
+    ]; // intentionally mis-cast to avoid mocking
   } else {
-    return [{
-      name: {
-        value: 'value'
-      },
-      loc: {},
-    } as FragmentDefinitionNode];
+    return [
+      {
+        name: {
+          value: 'value',
+        },
+        loc: {},
+      } as FragmentDefinitionNode,
+    ];
   }
 }
 
@@ -93,12 +100,18 @@ fragment FromDependency on User {
     chai.assert.deepEqual(
       result,
       new Map([
-        [5, new Map([
-          ['apple', { 
-            name: { value: 'apple' },
-            loc: { filename: path.join(basedir!, 'apple.graphql') },
-          } as unknown as AugmentedFragmentDefinitionWithFileNameInLocation]
-        ])]
+        [
+          5,
+          new Map([
+            [
+              'apple',
+              ({
+                name: { value: 'apple' },
+                loc: { filename: path.join(basedir!, 'apple.graphql') },
+              } as unknown) as AugmentedFragmentDefinitionWithFileNameInLocation,
+            ],
+          ]),
+        ],
       ]),
     );
   });
@@ -109,24 +122,36 @@ fragment FromDependency on User {
       path.join(basedir!, 'double-import.graphql'),
       resolve.sync,
       fakeParser,
-      false
+      false,
     );
 
     chai.assert.deepEqual(
       result,
       new Map([
-        [6, new Map([
-          ['apple', { 
-            name: { value: 'apple' },
-            loc: { filename: path.join(basedir!, 'apple.graphql') },
-          } as unknown as AugmentedFragmentDefinitionWithFileNameInLocation]
-        ])],
-        [10, new Map([
-          ['orange', {
-            name: { value: 'orange' },
-            loc: { filename: path.join(basedir!, 'orange.graphql') },
-          } as unknown as AugmentedFragmentDefinitionWithFileNameInLocation]
-        ])]
+        [
+          6,
+          new Map([
+            [
+              'apple',
+              ({
+                name: { value: 'apple' },
+                loc: { filename: path.join(basedir!, 'apple.graphql') },
+              } as unknown) as AugmentedFragmentDefinitionWithFileNameInLocation,
+            ],
+          ]),
+        ],
+        [
+          10,
+          new Map([
+            [
+              'orange',
+              ({
+                name: { value: 'orange' },
+                loc: { filename: path.join(basedir!, 'orange.graphql') },
+              } as unknown) as AugmentedFragmentDefinitionWithFileNameInLocation,
+            ],
+          ]),
+        ],
       ]),
     );
   });
@@ -143,12 +168,23 @@ fragment FromDependency on User {
     chai.assert.deepEqual(
       result,
       new Map([
-        [6, new Map([
-          ['FromDependency', { 
-            name: { value: 'FromDependency' },
-            loc: { filename: path.join(basedir!, 'node_modules/my-dependency/_dependency-fragment.graphql') },
-          } as unknown as AugmentedFragmentDefinitionWithFileNameInLocation]
-        ])]
+        [
+          6,
+          new Map([
+            [
+              'FromDependency',
+              ({
+                name: { value: 'FromDependency' },
+                loc: {
+                  filename: path.join(
+                    basedir!,
+                    'node_modules/my-dependency/_dependency-fragment.graphql',
+                  ),
+                },
+              } as unknown) as AugmentedFragmentDefinitionWithFileNameInLocation,
+            ],
+          ]),
+        ],
       ]),
     );
   });

@@ -6,6 +6,7 @@ type FragmentDefinitionWithoutLoc = Omit<FragmentDefinitionNode, 'loc'>;
 export interface AugmentedFragmentDefinitionWithFileNameInLocation
   extends FragmentDefinitionWithoutLoc {
   // hack so we can extend keys
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loc: any;
 }
 
@@ -42,13 +43,6 @@ export default function gatherFragmentImports(
       const toInsert = lineToFragmentDefinitions.get(lineNumber) || new Map();
       toInsert.set(fragment.name.value, augmentedFragment);
       lineToFragmentDefinitions.set(lineNumber, toInsert);
-    });
-  });
-
-  console.log(lineToFragmentDefinitions);
-  lineToFragmentDefinitions.forEach((value, key) => {
-    value.forEach((fragmentDefinition, fragmentName) => {
-      console.log(fragmentDefinition.loc);
     });
   });
   return lineToFragmentDefinitions;

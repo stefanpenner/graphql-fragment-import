@@ -104,10 +104,11 @@ function gatherImportsToFragmentNamesToFragmentDefinitionsWithTransitives(
 }
 
 function getDuplicates(
-  importsToFragments: Map<string, Map<string, FragmentDefinitionNode>>
+  importsToFragments: Map<string, Map<string, FragmentDefinitionNode>>,
 ): Set<string> {
   const duplicates: Set<string> = new Set();
   const seen = new Set();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   importsToFragments.forEach((value, _) => {
     value.forEach((_, fragmentName) => {
       if (seen.has(fragmentName)) {
@@ -124,6 +125,7 @@ function getUniqueFragmentSet(
   importsToFragments: Map<string, Map<string, FragmentDefinitionNode>>,
 ): Map<string, FragmentDefinitionNode> {
   const uniqueFragmentSet = new Map<string, FragmentDefinitionNode>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   importsToFragments.forEach((value, _) => {
     value.forEach((fragmentDefinition, fragmentName) => {
       uniqueFragmentSet.set(fragmentName, fragmentDefinition);

@@ -5,10 +5,6 @@ const gatherFragmentImportsForContext = require('../gather-fragment-imports-for-
 const parseImports = require('../parse-imports');
 const pathContainsDirectory = require('../path-contains-directory');
 
-const EMPTY_OBJECT = Object.freeze(Object.create(null));
-// conceptually a frozen map, but we can't actually freeze maps
-const EMPTY_MAP = new Map();
-
 const ERR_PREFIX = `[graphql-fragment-import/validate-imports]`;
 
 // this rule errors if we have more then one top level query
@@ -105,7 +101,6 @@ module.exports = {
 
       try {
         resolveImport(importIdentifier, { basedir });
-        console.log(node);
         VALID_IMPORTS.set(node.loc.start.line, node);
       } catch (e) {
         if (typeof e === 'object' && e !== null && e.code === 'MODULE_NOT_FOUND') {
@@ -166,56 +161,36 @@ module.exports = {
         const filename = context.getFilename();
         const basename = path.basename(filename);
         const isPartial = basename.length > 0 && basename.charAt(0) === '_';
-        let FRAGMENT_TO_IMPORT_LINE = EMPTY_OBJECT;
-        let IMPORTED_FRAGMENTS = EMPTY_OBJECT;
-        let IMPORT_LINE_USED = EMPTY_MAP;
+        const USED_FRAGMENT_DEFINITIONS = new Map();
 
+        const lineToFragmentNameToBucket = gatherFragmentImportsForContext(context, false);
         if (VALID_IMPORTS.size > 0) {
-          FRAGMENT_TO_IMPORT_LINE = Object.create(null);
-          IMPORTED_FRAGMENTS = Object.create(null);
-          IMPORT_LINE_USED = new Map();
+          let foundImports = new Set();
+          // eslint-disable-next-line no-unused-vars
+          lineToFragmentNameToBucket.forEach((value, _) => {
+            value.forEach((augmentedFragment, fragmentName) => {
+              USED_FRAGMENT_DEFINITIONS.set(fragmentName, augmentedFragment);
+              foundImports.add(augmentedFragment.loc.filename);
+            });
+          });
 
-          const lineToFragmentNameToBucket = gatherFragmentImportsForContext(context, false);
-
-          for (const [lineNumber, fragmentNameToFragment] of lineToFragmentNameToBucket.entries()) {
-            // initially we don't know that it's used
-            // we'll mark the used ones as true
-            // whatever false remains are unused
-            IMPORT_LINE_USED.set(lineNumber, false);
-
-            for (const [fragmentName, fragment] of fragmentNameToFragment.entries()) {
-              FRAGMENT_TO_IMPORT_LINE[fragmentName] = lineNumber;
-              IMPORTED_FRAGMENTS[fragmentName] = fragment;
-            }
-          }
-
-          // short-circuit no SPREAD_FRAGMENTS but we have imports, all imports
-          // are then unused
-          if (Object.keys(SPREAD_FRAGMENTS).length === 0) {
-            for (const node of VALID_IMPORTS.values()) {
+          VALID_IMPORTS.forEach(node => {
+            if (!foundImports.has(resolveImport(node.name.value, { basedir }))) {
               context.report({
                 message: `import unused`,
                 node,
               });
             }
-          }
+          });
         }
-
-        const USED_FRAGMENT_DEFINITIONS = new Set();
 
         for (const spreads of Object.values(SPREAD_FRAGMENTS)) {
           for (const { node, type } of spreads) {
             const name = node.name.value;
-            if (IMPORTED_FRAGMENTS[name] || FRAGMENT_DEFINITIONS[name]) {
-              if (FRAGMENT_DEFINITIONS[node.name.value]) {
-                USED_FRAGMENT_DEFINITIONS.add(FRAGMENT_DEFINITIONS[node.name.value]);
-                continue;
-              }
-              let lineNumber = FRAGMENT_TO_IMPORT_LINE[name];
-              IMPORT_LINE_USED.set(lineNumber, true);
-
-              let fragmentDefinitionTypeCondition =
-                IMPORTED_FRAGMENTS[name].typeCondition.name.value;
+            if (USED_FRAGMENT_DEFINITIONS.get(name) || FRAGMENT_DEFINITIONS[name] !== undefined) {
+              let fragmentDefinitionTypeCondition = (
+                USED_FRAGMENT_DEFINITIONS.get(name) || FRAGMENT_DEFINITIONS[name][0]
+              ).typeCondition.name.value;
               let fragmentSpreadTypeName = type.name;
 
               if (fragmentSpreadTypeName !== fragmentDefinitionTypeCondition) {
@@ -241,29 +216,23 @@ module.exports = {
 
         if (isPartial === false) {
           for (const nodes of Object.values(FRAGMENT_DEFINITIONS)) {
-            if (!USED_FRAGMENT_DEFINITIONS.has(nodes)) {
-              nodes.forEach(node => {
-                context.report({
-                  messageId: 'unusedFragmentDefinition',
-                  data: {
-                    fragmentName: node.name.value,
-                  },
-                  node,
-                });
-              });
-            }
-          }
-
-          // don't double count from the short-circuited version above
-          if (Object.keys(SPREAD_FRAGMENTS).length > 0) {
-            for (let [lineNumber, isUsed] of IMPORT_LINE_USED) {
-              if (isUsed === false) {
-                context.report({
-                  message: 'import unused',
-                  node: VALID_IMPORTS.get(lineNumber),
+            nodes.forEach(node => {
+              if (
+                node &&
+                !USED_FRAGMENT_DEFINITIONS.has(node.name.value) &&
+                SPREAD_FRAGMENTS[node.name.value] === undefined
+              ) {
+                nodes.forEach(node => {
+                  context.report({
+                    messageId: 'unusedFragmentDefinition',
+                    data: {
+                      fragmentName: node.name.value,
+                    },
+                    node,
+                  });
                 });
               }
-            }
+            });
           }
         }
       },

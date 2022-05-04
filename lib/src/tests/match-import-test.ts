@@ -1,5 +1,5 @@
-import { expect } from "chai";
-import matchImport from "../match-import";
+import { expect } from 'chai';
+import matchImport from '../match-import';
 
 describe('match-import', () => {
   it('parses import statements', () => {

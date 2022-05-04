@@ -9,6 +9,7 @@ module.exports = {
   env: {
     node: true,
   },
+  ignorePatterns: ['lib/dist/**/*.js'],
   rules: {
     'node/shebang': 'off',
   },
@@ -35,7 +36,6 @@ module.exports = {
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
-        project: './lib/tsconfig.json',
       },
       rules: {
         'node/no-unsupported-features/es-syntax': 'off',
