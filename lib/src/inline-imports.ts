@@ -38,7 +38,18 @@ function resolveImportsWithTransitivesToDocuments(
   importOptions: InlineImportOptions,
 ): Map<string, DocumentNode> {
   const toReturn: Map<string, DocumentNode> = new Map();
-  const imports = gatherImports(sourceQuery);
+  const imports = gatherImports(sourceQuery).map(imprort => {
+    const resolveStrategy = importOptions.resolveImport || resolve.sync;
+    let filename;
+    try {
+      filename = resolveStrategy(imprort, importOptions.resolveOptions);
+    } catch (e) {
+      if (importOptions.throwIfImportNotFound === true) {
+        throw e;
+      }
+    }
+    return filename;
+  });
   const stack = Array.from(imports);
   const visited: Set<string> = new Set();
   while (stack.length > 0) {
@@ -49,31 +60,25 @@ function resolveImportsWithTransitivesToDocuments(
 
     if (!visited.has(importToCheck)) {
       visited.add(importToCheck);
+      const source = readFileSync(importToCheck, 'utf8');
+      const document = parse(source);
+      toReturn.set(importToCheck, document);
+
+      const transitiveImports = gatherImports(source);
       const resolveStrategy = importOptions.resolveImport || resolve.sync;
-      let filename;
-      try {
-        filename = resolveStrategy(importToCheck, importOptions.resolveOptions);
-      } catch (e) {
-        if (importOptions.throwIfImportNotFound === true) {
-          throw e;
-        }
-      }
-
-      if (filename) {
-        const source = readFileSync(filename, 'utf8');
-        const document = parse(source);
-        toReturn.set(filename, document);
-
-        const transitiveImports = gatherImports(source);
-        // Non - optimal.  Using relative paths is bad and we can't properly check visited
-        // This means we can traverse files multiple times but will never end in cycles
-        // Swap to fully qualified paths to fix
-        transitiveImports.forEach(transitiveImport => {
-          if (!visited.has(transitiveImport)) {
-            visited.add(transitiveImport);
+      transitiveImports.forEach(transitiveImport => {
+        let transitiveFileName;
+        try {
+          transitiveFileName = resolveStrategy(transitiveImport, importOptions.resolveOptions);
+        } catch (e) {
+          if (importOptions.throwIfImportNotFound === true) {
+            throw e;
           }
-        });
-      }
+        }
+        if (transitiveFileName && !visited.has(transitiveFileName)) {
+          stack.push(transitiveFileName);
+        }
+      });
     }
   }
   return toReturn;

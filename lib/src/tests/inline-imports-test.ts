@@ -45,6 +45,34 @@ query {
     ...FromDependency
   }
 }`;
+      project.files['circular-file-reference-1.graphql'] = `
+#import './circular-file-reference-2.graphql'
+fragment a on User {
+  text {
+    ...textFragment
+  }
+}
+
+fragment b on User2 {
+  text {
+    ...textFragment
+  }
+}`;
+
+      project.files['circular-file-reference-2.graphql'] = `
+#import './circular-file-reference-1.graphql'
+fragment userCollection on UserCollection {
+  user1 {
+    ...a
+  }
+  user2 {
+    ...b
+  }
+}
+
+fragment textFragment on TextModel {
+  text
+}`;
 
       project.addDependency('my-dependency', '0.0.1', dependency => {
         dependency.files['_dependency-fragment.graphql'] = `
@@ -211,6 +239,53 @@ fragment FromDependency on User {
 }`);
   });
 
+  it('handle circular file references correctly', () => {
+    const options = { resolveOptions: { basedir } };
+    assertProjectImports(options);
+    expect(
+      inlineImports(
+        `
+#import './circular-file-reference-2.graphql'
+query A {
+  userCollection {
+    ...userCollection
+  }
+}
+        `,
+        options,
+      ),
+    ).to.eql(`query A {
+  userCollection {
+    ...userCollection
+  }
+}
+
+fragment userCollection on UserCollection {
+  user1 {
+    ...a
+  }
+  user2 {
+    ...b
+  }
+}
+
+fragment a on User {
+  text {
+    ...textFragment
+  }
+}
+
+fragment textFragment on TextModel {
+  text
+}
+
+fragment b on User2 {
+  text {
+    ...textFragment
+  }
+}`);
+  });
+
   it('supports custom resolution strategies', function () {
     interface FileAndBaseDir {
       file: string;
@@ -258,7 +333,7 @@ fragment FromDependency on User {
         basedir: basedir,
       },
       {
-        file: './orange.graphql',
+        file: './apple.graphql',
         basedir: basedir,
       },
       {
@@ -266,7 +341,19 @@ fragment FromDependency on User {
         basedir: basedir,
       },
       {
+        file: './orange.graphql',
+        basedir: basedir,
+      },
+      {
         file: './parent.graphql',
+        basedir: basedir,
+      },
+      {
+        file: './apple.graphql',
+        basedir: basedir,
+      },
+      {
+        file: './cycle-1.graphql',
         basedir: basedir,
       },
       {
