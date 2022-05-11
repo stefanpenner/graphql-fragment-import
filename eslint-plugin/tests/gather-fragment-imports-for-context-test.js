@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const { expect } = require('chai');
+const FixturifyProject = require('fixturify-project');
 
 const fragmentCapture = /(fragment (\w*).*\{[\w\n\s]*)\}/gm;
 
@@ -35,6 +36,18 @@ function createFakeContext(source, sourceLocation) {
 
 describe('gather-fragment-imports-for-context', function () {
   const gatherFragmentImportsForContext = require('../gather-fragment-imports-for-context');
+  let basedir;
+
+  beforeEach(function () {
+    const project = new FixturifyProject('my-example', '0.0.1', project => {
+      project.files['example'] = {
+        'file.graphql': '#import "./_orange.graphql"',
+      };
+    });
+
+    project.writeSync();
+    basedir = project.baseDir;
+  });
 
   it('empty source should return empty map', function () {
     const context = createFakeContext('', '../../example/file.graphql');
@@ -42,7 +55,10 @@ describe('gather-fragment-imports-for-context', function () {
   });
 
   it('single file import should contain fragment node from there', function () {
-    const context = createFakeContext('#import "./_orange.graphql"', '../../example/file.graphql');
+    const context = createFakeContext(
+      '#import "./_orange.graphql"',
+      basedir + '/example/file.graphql',
+    );
 
     const fragments = new Map([
       [
