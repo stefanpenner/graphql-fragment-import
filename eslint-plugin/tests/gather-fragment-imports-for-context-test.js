@@ -42,6 +42,15 @@ describe('gather-fragment-imports-for-context', function () {
     const project = new FixturifyProject('my-example', '0.0.1', project => {
       project.files['example'] = {
         'file.graphql': '#import "./_orange.graphql"',
+        '_orange.graphql': `
+          fragment Kiwi on Fruit {
+            id
+          }
+
+          fragment Orange on Fruit {
+            id
+          }
+        `,
       };
     });
 
@@ -51,6 +60,7 @@ describe('gather-fragment-imports-for-context', function () {
 
   it('empty source should return empty map', function () {
     const context = createFakeContext('', '../../example/file.graphql');
+
     expect(gatherFragmentImportsForContext(context, false)).to.deep.equal(new Map());
   });
 
@@ -66,7 +76,7 @@ describe('gather-fragment-imports-for-context', function () {
         {
           name: { value: 'Orange' },
           loc: {
-            filename: path.join(__dirname, '../../example/_orange.graphql'),
+            filename: path.join(basedir, '/example/_orange.graphql'),
           },
         },
       ],
@@ -75,13 +85,15 @@ describe('gather-fragment-imports-for-context', function () {
         {
           name: { value: 'Kiwi' },
           loc: {
-            filename: path.join(__dirname, '../../example/_orange.graphql'),
+            filename: path.join(basedir, '/example/_orange.graphql'),
           },
         },
       ],
     ]);
-    expect(gatherFragmentImportsForContext(context, false)).to.deep.equal(
-      new Map([[1, fragments]]),
-    );
+    const output = gatherFragmentImportsForContext(context, false);
+
+    expect([...output.get(1).keys()]).to.deep.equal(['Kiwi', 'Orange']);
+    expect(output.get(1).get('Kiwi')).to.deep.equal(fragments.get('Kiwi'));
+    expect(output.get(1).get('Orange')).to.deep.equal(fragments.get('Orange'));
   });
 });
