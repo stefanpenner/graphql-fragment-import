@@ -11,134 +11,134 @@ describe('eslint/validate-imports', function () {
     let project, tester;
     project = new Project('my-fake-project', '0.0.0', project => {
       project.files['_my-person.graphql'] = `
-fragment myPerson on People {
-  id
-  name
-}`;
+  fragment myPerson on People {
+    id
+    name
+  }`;
       project.files['_my-fruit.graphql'] = `
-fragment myFruit on Fruit {
-  id
-  colour
-}`;
+  fragment myFruit on Fruit {
+    id
+    colour
+  }`;
 
       project.files['test-file.graphql'] = `
-#import './_my-person.graphql'
-query foo {
-  bar {
-    ...myPerson
-  }
-}`;
+  #import './_my-person.graphql'
+  query foo {
+    bar {
+      ...myPerson
+    }
+  }`;
 
       project.files['test-file-fragment-with-import.graphql'] = `
-#import './_my-person.graphql'
-fragment foo on People {
-  ...myPerson
-  someOtherProperty
-}
-
-query {
-  bar {
-    ...foo
+  #import './_my-person.graphql'
+  fragment foo on People {
+    ...myPerson
+    someOtherProperty
   }
-}
-`;
+
+  query {
+    bar {
+      ...foo
+    }
+  }
+  `;
 
       project.files['no-such-import.graphql'] = `
-#import './_no-such-file.graphql'
-query foo {
-  bar {
-    ...myFragment
+  #import './_no-such-file.graphql'
+  query foo {
+    bar {
+      ...myFragment
+    }
   }
-}
-`;
+  `;
 
       project.files['unused-import.graphql'] = `
-#import './_my-person.graphql'
-query foo {
-  bar {
-    id
-  }
-}`;
+  #import './_my-person.graphql'
+  query foo {
+    bar {
+      id
+    }
+  }`;
 
       project.files['unused-some-import.graphql'] = `
-#import './_my-person.graphql'
-#import './_my-fruit.graphql'
+  #import './_my-person.graphql'
+  #import './_my-fruit.graphql'
 
-query foo {
-  bar {
-    id
-    ...myPerson
-  }
-}`;
+  query foo {
+    bar {
+      id
+      ...myPerson
+    }
+  }`;
 
       project.files['unused-fragment.graphql'] = `
-fragment NotGonnaUseThis on People {
-  id
-}
-
-query {
-  bar {
-    name
+  fragment NotGonnaUseThis on People {
+    id
   }
-}
-    `;
+
+  query {
+    bar {
+      name
+    }
+  }
+      `;
 
       project.files['missing-fragments.graphql'] = `
-#import './_my-person.graphql'
-query foo {
-  bar {
-    ...noSuchFragment,
-    ...myPerson,
-    ...noSuchFragment,
-  }
-}`;
+  #import './_my-person.graphql'
+  query foo {
+    bar {
+      ...noSuchFragment,
+      ...myPerson,
+      ...noSuchFragment,
+    }
+  }`;
 
       project.addDependency('some-dependency', '1.0.0', addon => {
         addon.files['_fragment.graphql'] = `
-fragment MyFragment on Fruit {
-  id
-} `;
+  fragment MyFragment on Fruit {
+    id
+  } `;
       });
 
       project.files['with-node-modules-import.graphql'] = `
-#import './node_modules/some-dependency/_fragment.graphql'
-query foo {
-  bar {
-    ...Fragment
+  #import './node_modules/some-dependency/_fragment.graphql'
+  query foo {
+    bar {
+      ...Fragment
+    }
   }
-}
-      `;
+        `;
 
       project.files['complex.graphql'] = `
-#import './file-without-underscore.graphql'
-#import './_fragment.apple'
-#import './_fragment.graphgql'
-#import './_fragment.grapqhl'
-query foo {
-  bar {
-    ...MyFragment
-    ...myPerson
-  }
-} `;
+  #import './file-without-underscore.graphql'
+  #import './_fragment.apple'
+  #import './_fragment.graphgql'
+  #import './_fragment.grapqhl'
+  query foo {
+    bar {
+      ...MyFragment
+      ...myPerson
+    }
+  } `;
 
       // two errors for the bad spreads on imported fragments
       // the in-document fragment is left to the standard rule, wrapped by @eslint-ast/eslint-plugin-graphql
       project.files['invalid-spread-imported.graphql'] = `
-#import './_my-person.graphql'
-#import './_my-fruit.graphql'
-fragment inDocumentFragment on People {
-  name
-}
-query foo {
-  bar {
-    ...myFruit
-    ...inDocumentFragment
+  #import './_my-person.graphql'
+  #import './_my-fruit.graphql'
+  fragment inDocumentFragment on People {
+    name
   }
-  baz {
-    ...myPerson
-    ...inDocumentFragment
-  }
-} `;
+  query foo {
+    bar {
+      ...myFruit
+      ...inDocumentFragment
+    }
+    baz {
+      ...myPerson
+      ...inDocumentFragment
+    }
+  } `;
     });
 
     project.writeSync();
