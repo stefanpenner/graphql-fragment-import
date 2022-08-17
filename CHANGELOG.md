@@ -1,3 +1,20 @@
+## v2.0.0 (2022-08-17)
+
+#### :boom: Breaking Change
+* [#16](https://github.com/stefanpenner/graphql-fragment-import/pull/16) Drop Support for node 10, 12. Support node 14, 16, 18. ([@hjdivad](https://github.com/hjdivad))
+
+#### :rocket: Enhancement
+* [#18](https://github.com/stefanpenner/graphql-fragment-import/pull/18) Add util to return string with imports inlined and map of matched imports ([@brendenpalmer](https://github.com/brendenpalmer))
+
+#### :house: Internal
+* [#14](https://github.com/stefanpenner/graphql-fragment-import/pull/14) Add inline test that has fragment files with circular references betw… ([@zsmoore](https://github.com/zsmoore))
+
+#### Committers: 3
+- Brenden Palmer ([@brendenpalmer](https://github.com/brendenpalmer))
+- David J. Hamilton ([@hjdivad](https://github.com/hjdivad))
+- Zachary Moore ([@zsmoore](https://github.com/zsmoore))
+
+
 ## v1.2.2 (2022-04-06)
 
 #### :bug: Bug Fix
