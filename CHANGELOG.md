@@ -1,3 +1,12 @@
+## v3.0.0 (2023-04-28)
+
+#### :boom: Breaking Change
+* [#19](https://github.com/stefanpenner/graphql-fragment-import/pull/19) Ensure transitively imported fragments are accounted for by `inlineImports` and `lineToImports` ([@christianarty](https://github.com/christianarty))
+
+#### Committers: 1
+- Christian Arty ([@christianarty](https://github.com/christianarty))
+
+
 ## v2.0.0 (2022-08-17)
 
 #### :boom: Breaking Change

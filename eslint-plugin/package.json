@@ -1,13 +1,13 @@
 {
   "name": "@graphql-fragment-import/eslint-plugin",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "scripts": {
     "test": "mocha --recursive tests",
     "test:debug": "mocha --inspect-brk --recursive tests"
   },
   "dependencies": {
     "@eslint-ast/eslint-plugin-graphql": "^1.0.3",
-    "@graphql-fragment-import/lib": "^2.0.0",
+    "@graphql-fragment-import/lib": "^3.0.0",
     "resolve": "^1.17.0"
   },
   "devDependencies": {

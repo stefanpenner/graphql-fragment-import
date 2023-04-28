@@ -1,6 +1,6 @@
 {
   "name": "@graphql-fragment-import/cli",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "scripts": {
     "test": "mocha --recursive tests",
     "test:debug": "mocha --inspect-brk --recursive tests"
@@ -9,7 +9,7 @@
     "graphql-fragment-import": "./cli.js"
   },
   "dependencies": {
-    "@graphql-fragment-import/lib": "^2.0.0",
+    "@graphql-fragment-import/lib": "^3.0.0",
     "chalk": "^4.1.0",
     "meow": "^7.0.1",
     "mkdirp": "^1.0.4",
