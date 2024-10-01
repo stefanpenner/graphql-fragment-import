@@ -19,5 +19,8 @@
     "fixturify-project": "^2.1.0",
     "mocha": "^8.1.1"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "license": "MIT"
 }
