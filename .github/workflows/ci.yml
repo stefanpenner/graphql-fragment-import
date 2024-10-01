@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         # maint LTS active LTS current
-        node: ['14', '16', '18']
+        node: ['18', '20', '22']
         os: [ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
