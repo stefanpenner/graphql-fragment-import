@@ -1,3 +1,15 @@
+## v4.0.0 (2024-10-08)
+
+#### :boom: Breaking Change
+* [#20](https://github.com/stefanpenner/graphql-fragment-import/pull/20) relay resolveOptions in inlineImportsWithLineToImports; drop Node < 18 ([@yangpiao](https://github.com/yangpiao))
+
+#### :bug: Bug Fix
+* [#20](https://github.com/stefanpenner/graphql-fragment-import/pull/20) relay resolveOptions in inlineImportsWithLineToImports; drop Node < 18 ([@yangpiao](https://github.com/yangpiao))
+
+#### Committers: 1
+- Yang ([@yangpiao](https://github.com/yangpiao))
+
+
 ## v3.0.0 (2023-04-28)
 
 #### :boom: Breaking Change
